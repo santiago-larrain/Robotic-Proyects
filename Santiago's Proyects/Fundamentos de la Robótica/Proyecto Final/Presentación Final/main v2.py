@@ -336,15 +336,20 @@ class Vision:
 				cv2.line(self.frame_filtered, self.p4, self.p5, (125, 125, 125), 3)
 
 		# Mostrar arcos
+		arc = 0
 		if str(self.a1) != "None":
 			cv2.circle(self.frame1, self.a1, 5, (255, 100, 100), -1)
 			cv2.circle(self.frame_filtered, self.a1, 5, (255, 100, 100), -1)
+			arc += 1
 		if str(self.a2) != "None":
 			cv2.circle(self.frame1, self.a2, 5, (100, 100, 255), -1)
 			cv2.circle(self.frame_filtered, self.a2, 5, (100, 100, 255), -1)
+			arc += 1
 		# Marcar centro
-		cv2.circle(self.frame1, self.center, 3, (100, 255, 100), -1)
-		cv2.circle(self.frame_filtered, self.center, 3, (100, 255, 100), -1)
+		if arc == 2:
+			self.center = self.int_array(self.a1/2 + self.a2/2)
+			cv2.circle(self.frame1, self.center, 3, (100, 255, 100), -1)
+			cv2.circle(self.frame_filtered, self.center, 3, (100, 255, 100), -1)
 
 	# --------------------------------------------------------------------------------------------------------
 	# --------------------------------------------------------------------------------------------------------
@@ -472,11 +477,9 @@ class Vision:
 				self.a1 = np.array([x, y])
 			if self.count == 6:
 				self.a2 = np.array([x, y])
-			if self.count == 7:
-				self.center = np.array([x, y])
 
 			self.count += 1
-			if self.count == 8:
+			if self.count == 7:
 				self.count = 5
 		
 		if event == cv2.EVENT_RBUTTONDOWN:
@@ -758,5 +761,5 @@ def p(arg):
 
 if __name__ == '__main__':
 	antena = Coms()
-	camera = Vision(nCam= 0, antena= antena)
+	camera = Vision(nCam= 1, antena= antena)
 	camera.thread.start()
