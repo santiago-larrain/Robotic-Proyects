@@ -16,22 +16,22 @@
     
     "PERIOD_COMS": 0.25,
     "WASD_TIME": 0.2,
-    "KICK_TIME": 5.525,
+    "KICK_TIME": 0.525,
     
     "MAX_VEL": 230.0,
-    "CAR_VEL": 150,
-    "DIST_TO_PWR": 5,
+    "CAR_VEL": 60,
+    "DIST_TO_PWR": 2,
 
-    "STOPPING_THRESHOLD": 30,
+    "STOPPING_THRESHOLD": 50,
     "STOP_BALL_THRESHOLD": 18,
-    "SIX_THRESHOLD": 5,
-    "ANGLE_THRESHOLD_MIN": 5,
+    "STOP_THRESHOLD": 15,
+    "ANGLE_THRESHOLD": 5,
     "PENALTY_SPACE_1": 50,
-    "PENALTY_SPACE_2": 10,
+    "PENALTY_SPACE_2": 20,
 
-    "kp": 50,
-    "ki": 70,
-    "kd": 1,
+    "kp": 55,
+    "ki": 40,
+    "kd": 0.018,
     
     "keys": {"49": "1",
              "50": "2",
@@ -55,6 +55,7 @@
              "100": "d",
              "101": "enemy",
              "104": "help",
-             "111": "coms"
+             "111": "coms",
+             "112": "AI"
             }
 }

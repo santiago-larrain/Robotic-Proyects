@@ -73,13 +73,16 @@ class Vision:
 		
 		# Inicializar cámara
 		self.cap = cv2.VideoCapture(nCam, cv2.CAP_DSHOW) #
-		# self.cap.set(cv2.CAP_PROP_SETTINGS, 1)
+		self.cap.set(cv2.CAP_PROP_SETTINGS, 1)
 		self.thread = Thread(target= self.thread_ver, daemon= False)
 
 		# Valores para controlador
 		self.angle = 0
 		self.dist_pix = 0
 		self.dist_mts = 0
+		self.angle_enemy = 0
+		self.dist_pix_enemy = 0
+		self.dist_mts_enemy = 0
 		self.dist_push = 0
 		self.motorRPM_1 = 0
 		self.motorRPM_2 = 0
@@ -123,10 +126,31 @@ class Vision:
 		self.wasd_time = 0
 		self.kick_time = 0
 		self.push = False
+		self.AI_mode = False
+
+		# Q-Table para AI
+		# Condiciones:
+		# 1 - Pelota está en lado amigo
+		# 2 - Auto está atrás de la pelota
+		# 3 - Enemigo está adelante de la pelota
+		# 4 - Enemigo está en posició para pegar
+		self.state = ()
+		self.q_table = {
+						():        "2",  # Cuidar pelota
+						(1,2,3):   "3",  # Empujar pelota al arco
+						(1,3,4):   "4",  # Defender como arquero
+						(1):       "4",  # Defender como arquero
+						(1,2,3,4): "5",  # Defender como defensa
+						(2,3):     "6",  # Meter gol pegando
+						(2):       "7",  # Meter gol empujando
+						(1,2):     "7",  # Meter gol empujando
+						}
 		
 	def parse_msg(self):
 		try:
-			self.antena.msg = p("MESSAGE").format(motor1= int(self.motorRPM_1), motor2= int(self.motorRPM_2))
+			motor1 = max(-p("MAX_VEL"), min(p("MAX_VEL"), int(self.motorRPM_1)))
+			motor2 = max(-p("MAX_VEL"), min(p("MAX_VEL"), int(self.motorRPM_2)))
+			self.antena.msg = p("MESSAGE").format(motor1= motor1, motor2= motor2)
 		except ValueError:
 			pass
 
@@ -159,6 +183,7 @@ class Vision:
 			self.mostrar(f"Distance: {round(self.dist_mts, 2)} cm", 2)
 			self.mostrar(f"Velocity: {round((self.motorRPM_1 + self.motorRPM_2)/2, 1)} RPM", 1, True)
 			self.mostrar(f"Mensaje: {self.antena.msg}", 2, True)
+			self.mostrar(f"Estado: {str(self.state)}", 3, True)
 			
 			## --- Mostrar pantallas y revisar evento de mouse --- ##
 			cv2.imshow(p("PROGRAM_WINDOW"), self.frame_filtered)
@@ -166,10 +191,19 @@ class Vision:
 			cv2.setMouseCallback(p("MAIN_WINDOW"), self.click_event)
 			
 			## --- Revisar inputs --- ##
+			# Leer entrada del teclado
 			self.keyboard()
 
+			## --- Modo automático --- ##
+			if self.AI_mode:
+				# Actualiza la task según el estado del juego
+				self.get_state()
+				try:
+					self.task = self.q_table[self.state]
+				except KeyError:
+					self.task = "4"  # En cualquier otro caso posible, defender el arco
+
 			## --- Actualizar el mensaje de la antena --- ##
-			# Leer entrada del teclado
 			self.task_manager()
 			# Actualizar mensaje con PID
 			self.pid_period = time.time() - self.start
@@ -197,15 +231,15 @@ class Vision:
 		sin = np.cross(v1, v2) / (np.linalg.norm(v1)*np.linalg.norm(v2))
 		cos = v1.dot(v2) / (np.linalg.norm(v1)*np.linalg.norm(v2))
 		if sin >= 0 and cos >= 0:
-			self.angle = np.arcsin(sin)
+			return np.arcsin(sin)
 		elif sin >= 0 and cos < 0:
-			self.angle = np.pi - np.arccos(-cos)
+			return np.pi - np.arccos(-cos)
 		elif sin < 0 and cos < 0:
-			self.angle = np.arccos(-cos) - np.pi
+			return np.arccos(-cos) - np.pi
 		elif sin < 0 and cos >= 0:
-			self.angle = np.arcsin(sin)
+			return np.arcsin(sin)
 		else:
-			self.angle = 0
+			return 0
 		
 	def limit(self, value):
 		# Limita un valor a estar entre 0 y self.car_vel
@@ -227,13 +261,33 @@ class Vision:
 			vector_C1_C3 = np.array([cX3-cX1, -(cY3-cY1)])
 
 			# Establecer ángulo = [-180°, 180°]
-			self.alpha(vector_C1_C2, vector_C1_C3)
+			self.angle = self.alpha(vector_C1_C2, vector_C1_C3)
 			# Distancia en pixeles
 			self.dist_pix = np.linalg.norm(vector_C1_C3)
 			# Distancia en metros
 			self.dist_mts = p("LARGO_AUTO")*np.linalg.norm(vector_C1_C3)/np.linalg.norm(vector_C1_C2)
 			if str(self.dist_mts) == "nan" or str(self.dist_mts) == "inf":
 				self.dist_mts = 0
+		
+		# Lo mismo, pero para el enemigo
+		if str(self.p4) != "None" and str(self.p5) != "None" and str(self.p3) != "None":
+			# Función para determinar ángulo y distancia a objetivo
+			cX1, cY1 = self.p4	# Retaguardia del auto enemigo
+			cX2, cY2 = self.p5	# Vanguardia del auto enemigo
+			cX3, cY3 = self.p3	# Pelota
+
+			# Vectores
+			vector_C1_C2 = np.array([cX2-cX1, -(cY2-cY1)])
+			vector_C1_C3 = np.array([cX3-cX1, -(cY3-cY1)])
+
+			# Establecer ángulo = [-180°, 180°]
+			self.angle_enemy = self.alpha(vector_C1_C2, vector_C1_C3)
+			# Distancia en pixeles
+			self.dist_pix_enemy = np.linalg.norm(vector_C1_C3)
+			# Distancia en metros
+			self.dist_mts_enemy = p("LARGO_AUTO")*np.linalg.norm(vector_C1_C3)/np.linalg.norm(vector_C1_C2)
+			if str(self.dist_mts_enemy) == "nan" or str(self.dist_mts_enemy) == "inf":
+				self.dist_mts_enemy = 0
 
 	def mask(self):
 		points = 0
@@ -288,6 +342,9 @@ class Vision:
 		if str(self.a2) != "None":
 			cv2.circle(self.frame1, self.a2, 5, (100, 100, 255), -1)
 			cv2.circle(self.frame_filtered, self.a2, 5, (100, 100, 255), -1)
+		# Marcar centro
+		cv2.circle(self.frame1, self.center, 3, (100, 255, 100), -1)
+		cv2.circle(self.frame_filtered, self.center, 3, (100, 255, 100), -1)
 
 	# --------------------------------------------------------------------------------------------------------
 	# --------------------------------------------------------------------------------------------------------
@@ -297,18 +354,19 @@ class Vision:
 			# Entregar una velocidad dependiendo de la task
 			if self.wasd_mode:
 				if self.task == "0.1":
-					return self.car_vel*self.sgn
+					return self.car_vel*self.sgn/2
 				else:
-					return self.car_vel/2
+					return self.car_vel/10
 
 			elif self.task == "1" or self.task == "4" or self.task == "5" or self.task == "6":
 				if self.dist_mts - p("LARGO_AUTO")/2 >= p("STOPPING_THRESHOLD"):
 					return self.car_vel
+				elif self.dist_mts - p("LARGO_AUTO")/2 <= p("STOP_THRESHOLD"):
+					if self.task == "6" and self.dist_mts != 0:
+						# Pequeño Glitch
+						self.task = "6.1"
+					return 0
 				else:
-					if self.task == "6" and self.dist_mts - p("LARGO_AUTO")/2 <= p("SIX_THRESHOLD"):
-						if self.dist_mts != 0:
-							# Pequeño Glitch
-							self.task = "6.1"
 					return (self.dist_mts - p("LARGO_AUTO")/2)*p("DIST_TO_PWR")
 			
 			elif self.task == "2":
@@ -323,23 +381,21 @@ class Vision:
 				return self.car_vel
 			
 			elif self.task == "6.1":
-				if np.degrees(self.angle) > p("ANGLE_THRESHOLD_MIN"):
-					return 0
-				elif np.degrees(self.angle) < -p("ANGLE_THRESHOLD_MIN"):
-					return 0
-				else:
+				print(self.objective)
+				if abs(np.degrees(self.angle)) <= p("ANGLE_THRESHOLD"):
 					self.task = "6.2"
 					self.kick_time = 0
+				return 0
 			
 			elif self.task == "6.2":
 				if self.dist_mts - p("LARGO_AUTO")/2 >= p("STOPPING_THRESHOLD"):
 					return (self.dist_mts - p("LARGO_AUTO")/2)*p("DIST_TO_PWR")
-				elif self.dist_mts - p("LARGO_AUTO")/2 <= p("SIX_THRESHOLD"):
+				elif self.dist_mts - p("LARGO_AUTO")/2 <= p("STOP_THRESHOLD"):
 					self.task = "6.3"
 					self.dist_push = np.linalg.norm(self.a2 - self.p1)
 					return 0
 				else:
-					return (self.dist_mts - p("LARGO_AUTO")/2)*p("DIST_TO_PWR")
+					return (self.dist_mts - p("LARGO_AUTO")/2)
 
 			elif self.task == "6.3":
 				if not self.push:
@@ -376,9 +432,16 @@ class Vision:
 				
 		velocity = self.velocidad()
 		if velocity != None:
-			self.error_1 = np.tan(self.angle/2)
-			self.error_2 = np.tan(-self.angle/2)
-			
+			if np.degrees(abs(self.angle)) <= p("ANGLE_THRESHOLD"):
+				self.error_1 = 0
+				self.error_2 = 0
+			else:
+				if self.angle >= 0:
+					self.error_1 = min(self.angle, np.tan(self.angle/2))
+					self.error_2 = max(-self.angle, np.tan(-self.angle/2))
+				else:
+					self.error_1 = max(self.angle, np.tan(self.angle/2))
+					self.error_2 = min(-self.angle, np.tan(-self.angle/2))
 			# Actualizar las velocidades de las ruedas
 			self.motorRPM_1 = velocity + self.k0*self.error_1 + self.k1*self.error_1_prev + self.k2*self.error_1_pprev
 			self.motorRPM_2 = velocity + self.k0*self.error_2 + self.k1*self.error_2_prev + self.k2*self.error_2_pprev
@@ -409,9 +472,11 @@ class Vision:
 				self.a1 = np.array([x, y])
 			if self.count == 6:
 				self.a2 = np.array([x, y])
+			if self.count == 7:
+				self.center = np.array([x, y])
 
 			self.count += 1
-			if self.count == 7:
+			if self.count == 8:
 				self.count = 5
 		
 		if event == cv2.EVENT_RBUTTONDOWN:
@@ -422,6 +487,7 @@ class Vision:
 			self.c5 = None
 			self.a1 = None
 			self.a2 = None
+			self.center = np.array([320, 240])
 			self.count = 0
 	
 	def keyboard(self):
@@ -464,7 +530,6 @@ class Vision:
 				elif code == "a": # a
 					self.wasd_mode = True
 					self.task = "0.2"
-					self.sgn = -1
 				elif code == "s": # s
 					self.wasd_mode = True
 					self.task = "0.1"
@@ -474,6 +539,7 @@ class Vision:
 				elif code == "d": # d
 					self.wasd_mode = True
 					self.task = "0.2"
+					self.sgn = -1
 				elif code == "enemy":  # e
 					if self.enemy:
 						self.enemy = False
@@ -491,6 +557,10 @@ class Vision:
 						self.antena.active = False
 					else:
 						self.antena.restart()
+				elif code == "AI":
+					self.AI_mode = not self.AI_mode
+				else:
+					self.AI_mode = False
 	
 	def task_manager(self):
 		try:
@@ -533,7 +603,7 @@ class Vision:
 				else:
 					p21 = self.p2 - self.p1
 					d = self.p3 - self.p1
-					self.objective = self.int_array( (p21*(p21.dot(d)/np.linalg.norm(p21)**2) + self.p1)*2 - self.p3 )
+					self.objective = self.int_array( (p21*(p21.dot(d)/np.linalg.norm(p21)**2) + self.p1)/2 + self.p3/2 )
 
 			elif self.task == "7":
 				self.task = "6"
@@ -560,9 +630,14 @@ class Vision:
 		print(f"\033[1m> 3:\033[0m Inicia la Task 3 - Empujar la pelota en línea recta")
 		print(f"\033[1m> 4:\033[0m Inicia la Task 4 - Defender el arco como arquero")
 		print(f"\033[1m> 5:\033[0m Inicia la Task 5 - Defender el arco como defensa")
-	
-	def set_speed(self, speed):
-		self.motorRPM_1 = self.motorRPM_2 = speed
+		print(f"\033[1m> 6:\033[0m Inicia la Task 6 - Penalty")
+		print(f"\033[1m> 7:\033[0m Inicia la Task 7 - Meter gol")
+		print(f"\033[1m> p:\033[0m Inicia el modo automático")
+		print(f"\033[1m> o:\033[0m Reinicia las comunciaciones")
+		print(f"\033[1m> wasd:\033[0m Control manual")
+		print(f"\033[1m> WS:\033[0m Aumentar/Disminuir la velocidad")
+		print(f"\033[1m> +:\033[0m Setea la velocidad en la máxima")
+		print(f"\033[1m> -:\033[0m Reinicia la velocidad a su valor predeterminado")
 
 	def reset(self):
 		self.task = None
@@ -578,6 +653,9 @@ class Vision:
 		self.angle = 0
 		self.dist_pix = 0
 		self.dist_mts = 0
+		self.angle_enemy = 0
+		self.dist_pix_enemy = 0
+		self.dist_mts_enemy = 0
 		self.motorRPM_1 = 0
 		self.motorRPM_2 = 0
 		self.car_vel = p("CAR_VEL")
@@ -591,6 +669,7 @@ class Vision:
 		self.p5 = None
 		self.a1 = None # Arco amigo
 		self.a2 = None # Arco enemigo
+		self.center = np.array([320, 240])
 		self.objective = None
 
 		self.start = 0
@@ -611,6 +690,64 @@ class Vision:
 		self.wasd_time = 0
 		self.kick_time = 0
 		self.push = False
+		self.AI_mode = False
+
+		# AI
+		self.state = ()
+
+	## --- Artifitial Intelligence --- ##
+	def get_state(self):
+		# Condiciones:
+		# 1 - Pelota está en lado amigo
+		# 2 - Auto está atrás de la pelota
+		# 3 - Enemigo está adelante de la pelota
+		# 4 - Enemigo está en posició para pegar
+		self.state = []
+		# Orientar
+		side = True
+		try:
+			if self.a1[0] > self.a2[0]:
+				side = False
+		except TypeError:
+			pass
+		
+		try:
+			if side:
+				if self.p3[0] <= self.center[0]:
+					self.state.append(1)
+			else:
+				if self.p3[0] >= self.center[0]:
+					self.state.append(1)
+		except TypeError:
+			pass
+		
+		try:
+			if side:
+				if self.p2[0] <= self.p3[0]:
+					self.state.append(2)
+			else:
+				if self.p2[0] >= self.p3[0]:
+					self.state.append(2)
+		except TypeError:
+			pass
+
+		try:
+			if side:
+				if self.p5[0] >= self.p3[0]:
+					self.state.append(3)
+			else:
+				if self.p5[0] <= self.p3[0]:
+					self.state.append(3)
+		except TypeError:
+			pass
+
+		try:
+			if self.dist_mts_enemy <= 40 and abs(self.angle_enemy) <= 1:
+				self.state.append(4)
+		except TypeError:
+			pass
+		
+		self.state = tuple(self.state)
 
 # Leer parámetros
 def p(arg):
