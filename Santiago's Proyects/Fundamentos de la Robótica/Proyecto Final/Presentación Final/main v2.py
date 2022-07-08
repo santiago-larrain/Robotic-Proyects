@@ -87,6 +87,7 @@ class Vision:
 		# Constantes PID
 		self.start = 0
 		self.pid_period = 0
+		self.sgn = 1
 		self.k0 = 0
 		self.k1 = 0
 		self.k2 = 0
@@ -123,7 +124,10 @@ class Vision:
 		self.push = False
 		
 	def parse_msg(self):
-		self.antena.msg = p("MESSAGE").format(motor1= int(self.motorRPM_1), motor2= int(self.motorRPM_2))
+		try:
+			self.antena.msg = p("MESSAGE").format(motor1= int(self.motorRPM_1), motor2= int(self.motorRPM_2))
+		except ValueError:
+			pass
 
 	def thread_ver(self):
 		# Windows
@@ -255,8 +259,6 @@ class Vision:
 					self.p3 = np.array([X, Y])
 					mask = cv2.bitwise_or(mask, self.COLOR3)
 					points += 1
-					if str(self.objective) == "None":
-						self.objective = self.p3
 				elif p == 3:
 					self.p4 = np.array([X, Y])
 					mask = cv2.bitwise_or(mask, self.COLOR4)
@@ -291,8 +293,13 @@ class Vision:
 
 	def velocidad(self):
 		# Entregar una velocidad dependiendo de la task
+		if self.wasd_mode:
+			if self.task == "0.1":
+				return self.car_vel*self.sgn
+			else:
+				return self.car_vel/2
 
-		if self.task == "1" or self.task == "4" or self.task == "5" or self.task == "6":
+		elif self.task == "1" or self.task == "4" or self.task == "5" or self.task == "6":
 			if self.dist_mts - p("LARGO_AUTO")/2 >= p("STOPPING_THRESHOLD"):
 				return self.car_vel
 			else:
@@ -312,11 +319,9 @@ class Vision:
 		elif self.task == "6.1":
 			turn_power = self.car_vel*self.angle
 			if np.degrees(self.angle) > p("ANGLE_THRESHOLD_MIN"):
-				self.motorRPM_1 = turn_power*0.5
-				self.motorRPM_2 = -turn_power*0.8
+				return 0
 			elif np.degrees(self.angle) < -p("ANGLE_THRESHOLD_MIN"):
-				self.motorRPM_2 = -turn_power*0.5
-				self.motorRPM_1 = turn_power*0.8
+				return 0
 			else:
 				self.task = "6.2"
 				self.kick_time = 0
@@ -347,6 +352,8 @@ class Vision:
 					return 0
 				else:
 					self.objective = self.p3
+		else:
+			return 0
 			
 	def PID(self):
 		## Definir constantes del PID
@@ -420,37 +427,40 @@ class Vision:
 			else:
 				self.key_pressed = True
 				self.wasd_mode = False
+				if self.sgn == -1 and self.task == "0.1":
+					self.c1, self.c2 = self.c2, self.c1
+				self.sgn = 1
+
 				if code.isnumeric():
 					self.task = code
 				elif code == "reset": # Delete
 					self.reset()
 				elif code == "stop":  # Space
-					self.set_speed(0)
 					self.task = None
 				elif code == "up_vel": # W
 					self.car_vel += 10
-					self.set_speed(self.car_vel)
 				elif code == "dw_vel": # S
 					self.car_vel -= 10
-					self.set_speed(self.car_vel)
-				elif code == "up_turn": # D
-					self.turn_vel += 10
-				elif code == "dw_turn": # A
-					self.turn_vel -= 10
+				elif code == "max_vel": # +
+					self.car_vel = p("MAX_VEL")
+				elif code == "rst_vel": # -
+					self.car_vel = p("CAR_VEL")
 				elif code == "w": # w
-					self.set_speed(self.car_vel)
-					self.task = "0"
+					self.wasd_mode = True
+					self.task = "0.1"
 				elif code == "a": # a
-					self.motorRPM_1 = self.turn_vel*1.5
-					self.motorRPM_2 = -self.turn_vel*0.5
-					self.task = "0"
+					self.wasd_mode = True
+					self.task = "0.2"
+					self.sgn = -1
 				elif code == "s": # s
-					self.set_speed(-self.car_vel)
-					self.task = "0"
+					self.wasd_mode = True
+					self.task = "0.1"
+					if self.sgn != -1:
+						self.c1, self.c2 = self.c2, self.c1
+					self.sgn = -1
 				elif code == "d": # d
-					self.motorRPM_1 = -self.turn_vel*0.5
-					self.motorRPM_2 = self.turn_vel*1.5
-					self.task = "0"
+					self.wasd_mode = True
+					self.task = "0.2"
 				elif code == "enemy":  # e
 					if self.enemy:
 						self.enemy = False
@@ -471,15 +481,13 @@ class Vision:
 	
 	def task_manager(self):
 		try:
-			if self.task == "0":
-				# Mandar el comando WASD por T segundos
-				if not self.wasd_mode:
-					self.wasd_mode = True
-					self.wasd_time = time.time()
-				elif time.time() - self.wasd_time >= p("WASD_TIME"):
-					self.task = None
-					self.wasd_mode = False
-					self.set_speed(0)
+			if self.task == "0.1": 
+				self.objective = 2*self.p2 - self.p1
+			
+			elif self.task == "0.2":
+				extra = self.sgn*(self.p2 - self.p1)
+				extra = np.array([extra[1], -extra[0]])
+				self.objective = self.int_array(self.p1*8/10 + self.p2*2/10 + extra)
 
 			elif self.task == "1": self.objective = self.center # Go to the center
 
@@ -513,7 +521,10 @@ class Vision:
 				self.push = True
 			
 			else:
-				self.objective = self.p3
+				self.angle = 0
+				self.dist_pix = 0
+				self.dist_mts = 0
+				self.objective = None
 			
 		except TypeError:
 			if self.key_pressed:
