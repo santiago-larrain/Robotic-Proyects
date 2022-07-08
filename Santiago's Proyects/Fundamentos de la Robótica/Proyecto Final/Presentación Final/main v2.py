@@ -84,6 +84,16 @@ class Vision:
 		self.motorRPM_2 = 0
 		self.car_vel = p("CAR_VEL")
 
+		# Constantes PID
+		self.start = 0
+		self.pid_period = 0
+		self.k0 = 0
+		self.k1 = 0
+		self.k2 = 0
+		self.error_1 = self.error_2 = 0
+		self.error_1_pprev = self.error_2_pprev = 0
+		self.error_1_prev = self.error_2_prev = 0
+
 		# Variables de trabajo
 		self.frame1 = None
 		self.frame2 = None
@@ -103,7 +113,6 @@ class Vision:
 		# Contador para ir cambiando los colores a utilizar
 		# 0 -> parte trasera del auto; 1 -> parte delantera del auto; 2 -> pelota
 		self.count = 0
-		self.start = 0
 
 		# Variable para manipular el número de prints
 		self.key_pressed = False
@@ -155,12 +164,13 @@ class Vision:
 			self.keyboard()
 
 			## --- Actualizar el mensaje de la antena --- ##
+			# Leer entrada del teclado
 			self.task_manager()
+			# Actualizar mensaje con PID
+			self.pid_period = time.time() - self.start
 			self.PID()
+			# Modificar mensaje a enviar
 			self.parse_msg()
-
-			## --- Periodo de trabajo --- ##
-			time.sleep(max(p("PERIOD_VISION") - (time.time() - self.start), 0))
 		
 		self.cap.release()
 		cv2.destroyAllWindows()
@@ -338,21 +348,27 @@ class Vision:
 					return 0
 				else:
 					self.objective = self.p3
-					self.PID()	
 			
 	def PID(self):
+		## Definir constantes del PID
+		self.k0 = p("kp")*(1 + p("ki")*self.pid_period + p("kd")/self.pid_period)
+		self.k1 = -p("kp")*(1 + 2*p("kd")/self.pid_period)
+		self.k2 = p("kp")*p("kd")/self.pid_period
+				
 		velocity = self.velocidad()
-		if velocity == None:
-			pass # Se autoajustan los motores
-		else:
-			self.motorRPM_1 = self.limit(velocity)
-			self.motorRPM_2 = self.limit(velocity)
-			if self.angle > 0:
-				# Ajustamos rueda 2 con un coseno
-				self.motorRPM_2 *= self.limit(np.cos(self.angle))
-			else:
-				self.motorRPM_1 *= self.limit(np.cos(self.angle))
-				# Ajustamos rueda 1 con un coseno
+		if velocity != None:
+			self.error_1 = np.tan(self.angle/2)
+			self.error_2 = np.tan(-self.angle/2)
+			
+			# Actualizar las velocidades de las ruedas
+			self.motorRPM_1 = velocity + self.k0*self.error_1 + self.k1*self.error_1_prev + self.k2*self.error_1_pprev
+			self.motorRPM_2 = velocity + self.k0*self.error_2 + self.k1*self.error_2_prev + self.k2*self.error_2_pprev
+
+			# Actualizar variables previas
+			self.error_1_pprev = self.error_1_prev
+			self.error_2_pprev = self.error_2_prev
+			self.error_1_prev = self.error_1
+			self.error_2_prev = self.error_2
 			
 	def click_event(self, event, x, y, flags, params):
 		if event == cv2.EVENT_LBUTTONDOWN:
@@ -536,7 +552,6 @@ class Vision:
 		self.motorRPM_1 = 0
 		self.motorRPM_2 = 0
 		self.car_vel = p("CAR_VEL")
-		self.turn_vel = p("TURN_VEL")
 
 		# Variables de trabajo
 		self.frame_filtered = None
@@ -549,13 +564,16 @@ class Vision:
 		self.a2 = None # Arco enemigo
 		self.objective = None
 
+		self.start = 0
+		self.pid_period = 0
+		self.error_1 = self.error_2 = 0
+		self.error_1_pprev = self.error_2_pprev = 0
+		self.error_1_prev = self.error_2_prev = 0
+
 		# Parámetros de trabajo
-		self.angle_fixed = False
 		self.active = True       # Parámetro bajo el cual el Thread corre
 		# Contador para ir cambiando los colores a utilizar
-		# 0 -> parte trasera del auto; 1 -> parte delantera del auto; 2 -> pelota
 		self.count = 0
-		self.start = 0
 
 		# Variable para manipular el número de prints
 		self.key_pressed = False

@@ -15,7 +15,6 @@
     "MESSAGE": "{motor1},{motor2};",
     
     "PERIOD_COMS": 0.25,
-    "PERIOD_VISION": 0.04,
     "WASD_TIME": 0.2,
     "KICK_TIME": 0.525,
     
@@ -28,6 +27,10 @@
     "ANGLE_THRESHOLD_MIN": 5,
     "PENALTY_SPACE_1": 50,
     "PENALTY_SPACE_2": 35,
+
+    "kp": 50,
+    "ki": 70,
+    "kd": 1,
     
     "keys": {"49": "1",
              "50": "2",
