@@ -16,7 +16,7 @@
     
     "PERIOD_COMS": 0.25,
     "WASD_TIME": 0.2,
-    "KICK_TIME": 0.525,
+    "KICK_TIME": 5.525,
     
     "MAX_VEL": 230.0,
     "CAR_VEL": 150,
@@ -24,9 +24,10 @@
 
     "STOPPING_THRESHOLD": 30,
     "STOP_BALL_THRESHOLD": 18,
+    "SIX_THRESHOLD": 5,
     "ANGLE_THRESHOLD_MIN": 5,
     "PENALTY_SPACE_1": 50,
-    "PENALTY_SPACE_2": 35,
+    "PENALTY_SPACE_2": 10,
 
     "kp": 50,
     "ki": 70,

@@ -80,6 +80,7 @@ class Vision:
 		self.angle = 0
 		self.dist_pix = 0
 		self.dist_mts = 0
+		self.dist_push = 0
 		self.motorRPM_1 = 0
 		self.motorRPM_2 = 0
 		self.car_vel = p("CAR_VEL")
@@ -292,67 +293,79 @@ class Vision:
 	# --------------------------------------------------------------------------------------------------------
 
 	def velocidad(self):
-		# Entregar una velocidad dependiendo de la task
-		if self.wasd_mode:
-			if self.task == "0.1":
-				return self.car_vel*self.sgn
-			else:
-				return self.car_vel/2
+		try:
+			# Entregar una velocidad dependiendo de la task
+			if self.wasd_mode:
+				if self.task == "0.1":
+					return self.car_vel*self.sgn
+				else:
+					return self.car_vel/2
 
-		elif self.task == "1" or self.task == "4" or self.task == "5" or self.task == "6":
-			if self.dist_mts - p("LARGO_AUTO")/2 >= p("STOPPING_THRESHOLD"):
+			elif self.task == "1" or self.task == "4" or self.task == "5" or self.task == "6":
+				if self.dist_mts - p("LARGO_AUTO")/2 >= p("STOPPING_THRESHOLD"):
+					return self.car_vel
+				else:
+					if self.task == "6" and self.dist_mts - p("LARGO_AUTO")/2 <= p("SIX_THRESHOLD"):
+						if self.dist_mts != 0:
+							# Pequeño Glitch
+							self.task = "6.1"
+					return (self.dist_mts - p("LARGO_AUTO")/2)*p("DIST_TO_PWR")
+			
+			elif self.task == "2":
+				if self.dist_mts - p("LARGO_AUTO") >= p("STOPPING_THRESHOLD"):
+					return self.car_vel
+				elif self.dist_mts - p("LARGO_AUTO") >= p("STOP_BALL_THRESHOLD"):
+					return (self.dist_mts - p("LARGO_AUTO"))*p("DIST_TO_PWR")
+				else:
+					return 0
+
+			elif self.task == "3":
 				return self.car_vel
-			else:
-				return (self.dist_mts - p("LARGO_AUTO")/2)*p("DIST_TO_PWR")
-		
-		elif self.task == "2":
-			if self.dist_mts - p("LARGO_AUTO") >= p("STOPPING_THRESHOLD"):
-				return self.car_vel
-			elif self.dist_mts - p("LARGO_AUTO") >= p("STOP_BALL_THRESHOLD"):
-				return (self.dist_mts - p("LARGO_AUTO"))*p("DIST_TO_PWR")
-			else:
-				return 0
-
-		elif self.task == "3":
-			return self.car_vel
-		
-		elif self.task == "6.1":
-			turn_power = self.car_vel*self.angle
-			if np.degrees(self.angle) > p("ANGLE_THRESHOLD_MIN"):
-				return 0
-			elif np.degrees(self.angle) < -p("ANGLE_THRESHOLD_MIN"):
-				return 0
-			else:
-				self.task = "6.2"
-				self.kick_time = 0
-		
-		elif self.task == "6.2":
-			if self.dist_mts - p("LARGO_AUTO")/2 >= p("STOPPING_THRESHOLD"):
-				return (self.dist_mts - p("LARGO_AUTO")/2)*p("DIST_TO_PWR")
-			else:
-				self.task = "6.3"
-				return 0
-
-		elif self.task == "6.3":
-			if not self.push:
-				# Pegar un penal
-				if self.kick_time == 0:
-					self.kick_time = time.time()
-				if time.time() - self.kick_time >= p("KICK_TIME"):
+			
+			elif self.task == "6.1":
+				if np.degrees(self.angle) > p("ANGLE_THRESHOLD_MIN"):
+					return 0
+				elif np.degrees(self.angle) < -p("ANGLE_THRESHOLD_MIN"):
+					return 0
+				else:
+					self.task = "6.2"
 					self.kick_time = 0
-					self.task = 0
+			
+			elif self.task == "6.2":
+				if self.dist_mts - p("LARGO_AUTO")/2 >= p("STOPPING_THRESHOLD"):
+					return (self.dist_mts - p("LARGO_AUTO")/2)*p("DIST_TO_PWR")
+				elif self.dist_mts - p("LARGO_AUTO")/2 <= p("SIX_THRESHOLD"):
+					self.task = "6.3"
+					self.dist_push = np.linalg.norm(self.a2 - self.p1)
 					return 0
 				else:
-					return p("MAX_VEL")
+					return (self.dist_mts - p("LARGO_AUTO")/2)*p("DIST_TO_PWR")
+
+			elif self.task == "6.3":
+				if not self.push:
+					# Pegar un penal
+					if self.kick_time == 0:
+						self.kick_time = time.time()
+					if time.time() - self.kick_time >= p("KICK_TIME"):
+						self.kick_time = 0
+						self.task = None
+						return 0
+					else:
+						return p("MAX_VEL")
+				else:
+					# Para task 7
+					if np.linalg.norm(self.a2 - self.p2) - p("LARGO_AUTO")/2 <= p("STOPPING_THRESHOLD"):
+						self.push = False
+						self.task = None
+						return 0
+					else:
+						return (max(0, self.dist_push - np.linalg.norm(self.a2 - self.p2)) * p("DIST_TO_PWR"))**0.75
+			
 			else:
-				# Para task 7
-				if self.dist_mts - p("LARGO_AUTO")/2 <= p("STOPPING_THRESHOLD"):
-					self.push = False
-					self.task = 0
-					return 0
-				else:
-					self.objective = self.p3
-		else:
+				return 0
+				
+		except TypeError:
+			print(f"\033[1mWARNING:\033[0m Faltan elementos para completar la \033[1mTask {self.task}\033[0m")
 			return 0
 			
 	def PID(self):
@@ -514,7 +527,13 @@ class Vision:
 				
 				self.objective = self.int_array(self.p3 + (self.a2 - self.p3)*k)
 				
-			elif self.task == "6.3": self.objective = self.p3
+			elif self.task == "6.3":
+				if not self.push:
+					self.objective = self.p3
+				else:
+					p21 = self.p2 - self.p1
+					d = self.p3 - self.p1
+					self.objective = self.int_array( (p21*(p21.dot(d)/np.linalg.norm(p21)**2) + self.p1)*2 - self.p3 )
 
 			elif self.task == "7":
 				self.task = "6"
