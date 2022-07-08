@@ -1,0 +1,187 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      6596,        179]
+NotebookOptionsPosition[      5898,        159]
+NotebookOutlinePosition[      6328,        176]
+CellTagsIndexPosition[      6285,        173]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ref", "=", "200"}], ";"}]], "Input",
+ CellChangeTimes->{{3.8600523752501135`*^9, 3.860052398787232*^9}, {
+   3.8600524432812204`*^9, 3.8600524660823097`*^9}, {3.8603460738875666`*^9, 
+   3.860346096189786*^9}, {3.860749604093252*^9, 3.8607496059975243`*^9}, {
+   3.860750908185114*^9, 3.860750915492835*^9}, {3.8607509695734763`*^9, 
+   3.8607510912870874`*^9}, {3.860752793225424*^9, 3.860752804565628*^9}, {
+   3.860752879852806*^9, 3.860752908600727*^9}, {3.860753747639372*^9, 
+   3.860753748022499*^9}, {3.8638791234499035`*^9, 3.863879128525527*^9}, {
+   3.8638791748257666`*^9, 3.863879174890111*^9}, {3.86387921213069*^9, 
+   3.8638792121629148`*^9}, {3.8638793188776093`*^9, 3.8638793222321377`*^9}, 
+   3.863879399241155*^9},ExpressionUUID->"1bbcad5c-ffd5-40da-a6ad-\
+7f295292ec29"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"error1", "[", "pos_", "]"}], ":=", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"ref", "-", "pos"}], ")"}], "/", "ref"}], "*", 
+   "pwrMax"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"error2", "[", "pos_", "]"}], ":=", 
+  RowBox[{
+   RowBox[{"Tan", "[", 
+    RowBox[{
+     RowBox[{"Abs", "[", 
+      RowBox[{"ref", "-", "pos"}], "]"}], "/", "ref"}], "]"}], "*", 
+   "ref"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"error3", "[", "pos_", "]"}], ":=", 
+  RowBox[{
+   RowBox[{"ArcSin", "[", 
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{"ref", "-", "pos"}], ")"}], "/", 
+     RowBox[{"(", 
+      RowBox[{"ref", "+", "pos"}], ")"}]}], "]"}], "*", 
+   RowBox[{"(", 
+    RowBox[{"ref", "+", "pos"}], ")"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"error4", "[", 
+   RowBox[{"pos_", ",", "s_"}], "]"}], ":=", 
+  RowBox[{
+   RowBox[{"Tan", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"ref", "-", "pos"}], ")"}], "/", 
+      RowBox[{"(", 
+       RowBox[{"ref", "+", "pos"}], ")"}]}], "*", 
+     RowBox[{"ArcTan", "[", 
+      RowBox[{"s", "^", 
+       RowBox[{"(", 
+        RowBox[{"5", "/", "3"}], ")"}]}], "]"}]}], "]"}], "*", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"ref", "+", "pos"}], ")"}], "/", 
+    "s"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{"Manipulate", "[", 
+  RowBox[{
+   RowBox[{"Plot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"error1", "[", "x", "]"}], ",", 
+       RowBox[{"error2", "[", "x", "]"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"x", ",", 
+       RowBox[{"-", "ref"}], ",", 
+       RowBox[{"2", "*", "ref"}]}], "}"}], ",", 
+     RowBox[{"PlotRange", "\[Rule]", "All"}], ",", 
+     RowBox[{
+     "PlotLabel", "\[Rule]", 
+      "\"\<Velocidad de la rueda dado el error\>\""}]}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"s", ",", "1", ",", "3"}], "}"}]}], "]"}]}], "Input",
+ CellChangeTimes->CompressedData["
+1:eJwdzFsog3EYBvBZa5GUITQmK2m1Eatt1Fo+tVL0YchhyihrJmkO2ZZMKymW
+HEoZSnLBssUFSaFMamaXFnK6UGq+7WIXH1Niz//i6dfT+/aI+4Z1/VwOhyNK
+Bv7GdcqJS4aSuWwq6HKvaCBngU/B4xqWJt3T0wi7fbYWOKVp74XOuRsTrM2M
+DpJ/l/UULpujEagPa7+gLXHOs2I/fF4ATeq9QihVzNNQuJjdRHpqehfMY+r1
+sITd7YEhi8EI8+mRSVhptxGLRLPTUKbYckKJPLDG9zNUTFC6CVfpxSDkVa8T
+D7pi28GkuevPcTjzyf2B8gGf9BZ3AbcCDiUWdLBY7dZDsfeV2PEozwrBFm0O
+/E4Za4P741FiKzdmhvYH7yjsfHqzQ+fOH3HjMsMBPQ1ZxLLyyJk/wFBKQ90F
+XDruDsAT32gQHrLGO1hl8b/AF6HhHTarzB/w/trPQsmRI+0q6T8AvQLs
+  "],
+ CellLabel->
+  "In[118]:=",ExpressionUUID->"e4fb6808-afba-4d7e-9a0a-90e326cf0288"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`s$$ = 1, Typeset`show$$ = True, 
+    Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"sin t\[IAcute]tulo\"", Typeset`specs$$ = {{
+      Hold[$CellContext`s$$], 1, 3}}, Typeset`size$$ = {
+    360., {114., 119.70892143742503`}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, "Variables" :> {$CellContext`s$$ = 1}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> Plot[{
+         $CellContext`error1[$CellContext`x], 
+         $CellContext`error2[$CellContext`x]}, {$CellContext`x, \
+-$CellContext`ref, 2 $CellContext`ref}, PlotRange -> All, PlotLabel -> 
+        "Velocidad de la rueda dado el error"], 
+      "Specifications" :> {{$CellContext`s$$, 1, 3}}, "Options" :> {}, 
+      "DefaultOptions" :> {}],
+     ImageSizeCache->{831., {143., 149.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{{3.8638796701383495`*^9, 3.8638797562652464`*^9}},
+ CellLabel->
+  "Out[122]=",ExpressionUUID->"9f3f56a7-1998-4380-a011-ef1df1064f71"]
+}, Open  ]],
+
+Cell["", "Item",
+ CellChangeTimes->{
+  3.8638796070944443`*^9},ExpressionUUID->"a708dac4-2871-4c7a-9e6f-\
+01d085fec6ef"]
+},
+WindowSize->{949, 461},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+Magnification:>1. Inherited,
+FrontEndVersion->"12.2 para Microsoft Windows (64-bit) (December 12, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"b97edf60-4192-4344-95c8-be2d1bf782d6"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 827, 13, 28, "Input",ExpressionUUID->"1bbcad5c-ffd5-40da-a6ad-7f295292ec29"],
+Cell[CellGroupData[{
+Cell[1410, 37, 2531, 75, 206, "Input",ExpressionUUID->"e4fb6808-afba-4d7e-9a0a-90e326cf0288"],
+Cell[3944, 114, 1815, 37, 311, "Output",ExpressionUUID->"9f3f56a7-1998-4380-a011-ef1df1064f71"]
+}, Open  ]],
+Cell[5774, 154, 120, 3, 31, "Item",ExpressionUUID->"a708dac4-2871-4c7a-9e6f-01d085fec6ef"]
+}
+]
+*)
+

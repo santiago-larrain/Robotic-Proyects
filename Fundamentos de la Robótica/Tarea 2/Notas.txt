@@ -1,0 +1,15 @@
+Todos los códigos de python están correctamente comentados 
+para entender todo su funcionamiento.
+Se cumplen los requerimientos en todos los códigos.
+
+Extra:
+- En la pregunta 1, se pueden marcar diversos puntos y el 
+  brazo recorrerá las lineas que se vayan formando.
+  Al final de cada linea, mostrará los resultados de el recorrido.
+  Se crea un archivo .csv en el directorio que se corrió el programa.
+- En la pregunta 2, se implementa un código python para los
+  modelos descritos en el desarrollo (pdf)
+- En la pregunta 4, se presiona H para ver los controles.
+  El modo automático falla para puntos lejanos o que requieren 
+  mucha rotación; es un poco impredecible el comportamiento, 
+  pero fue optimizado.
