@@ -184,10 +184,9 @@ class Vision:
 	def mostrar(self, txt, ID, *COL):
 		col = 10
 		if COL:
-			col = 460
+			col = 450
 		cv2.putText(self.frame_filtered, str(txt), (col, 20*ID), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
 		
-
 	def alpha(self, v1, v2):
 		# Producto punto y cruz
 		sin = np.cross(v1, v2) / (np.linalg.norm(v1)*np.linalg.norm(v2))
