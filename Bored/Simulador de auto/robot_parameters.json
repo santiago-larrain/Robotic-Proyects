@@ -1,0 +1,12 @@
+{
+    "CAR_WIDTH": 0.2,
+    "CAR_LENGHT": 0.23,
+    "WHEEL_WIDTH": 0.025,
+    "WHEEL_LENGHT": 0.1,
+    "WHEEL_RADIOUS": 0.1,
+    "gamma_1": 0.9,
+    "gamma_2": 0.85,
+
+    "LINEAR_VISCOUS_FRICTION": 30,
+    "ANGULAR_VISCOUS_FRICTION": 40
+}

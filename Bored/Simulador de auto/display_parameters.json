@@ -1,0 +1,15 @@
+{
+    "WINDOW_NAME": "Robotic Car v4.0",
+    "WINDOW_WIDTH": 1200,
+    "WINDOW_LENGHT": 600,
+    "SCALE": 300,
+    "PIX_PER_UNIT": 30,
+    "FPS": 30,
+
+    "CAR_CHASSIS_COLOR_1": [200, 100, 100],
+    "CAR_CHASSIS_COLOR_2": [100, 200, 100],
+    "CAR_WHEEL_COLOR": [75,75,150],
+    "CAR_PALLET_COLOR": [100,150,100],
+    "BALL_COLOR": [200,200,150],
+    "BALL_RADIOUS": 3
+}
