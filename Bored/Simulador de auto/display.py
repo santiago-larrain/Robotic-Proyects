@@ -77,6 +77,7 @@ class Display:
     def draw_objects(self):
         # draw cars
         for car in self.cars:
+            car.move(1/self.p("FPS"))
             chassis, wheel_L, wheel_R = self.dimensions(car)
             pygame.draw.polygon(self.screen, tuple(self.p("CAR_CHASSIS_COLOR_1")), chassis, 0)
             pygame.draw.polygon(self.screen, tuple(self.p("CAR_WHEEL_COLOR")), wheel_L, 0)

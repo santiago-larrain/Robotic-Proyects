@@ -8,4 +8,5 @@ if __name__ == "__main__":
     robot = Car()
     robot.back = np.array([550,300])
     robot.front = np.array([650,300])
+    robot.scale = display.p("SCALE")
     display.cars.append(robot)
