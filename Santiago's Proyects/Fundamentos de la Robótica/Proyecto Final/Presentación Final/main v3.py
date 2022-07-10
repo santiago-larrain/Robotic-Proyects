@@ -73,7 +73,7 @@ class Vision:
 		
 		# Inicializar cámara
 		self.cap = cv2.VideoCapture(nCam, cv2.CAP_DSHOW) #
-		# self.cap.set(cv2.CAP_PROP_SETTINGS, 1)
+		self.cap.set(cv2.CAP_PROP_SETTINGS, 1)
 		self.thread = Thread(target= self.thread_ver, daemon= False)
 
 		# Valores para controlador
@@ -134,16 +134,17 @@ class Vision:
 		# 2 - Auto está atrás de la pelota
 		# 3 - Enemigo está adelante de la pelota
 		# 4 - Enemigo está en posició para pegar
-		self.state = None
+		self.state = ()
 		self.q_table = {
-						"":       "2",  # Cuidar pelota
-						"123":    "3",  # Empujar pelota al arco
-						"134":    "4",  # Defender como arquero
-						"1":      "4",  # Defender como arquero
-						"1234":   "5",  # Defender como defensa
-						"23":     "6",  # Meter gol pegando
-						"2":       "7",  # Meter gol empujando
-						"12":     "7",  # Meter gol empujando
+						():        "2",  # Cuidar pelota
+						(1,2,3):   "3",  # Empujar pelota al arco
+						(1,3,4):   "4",  # Defender como arquero
+						(1,):       "4",  # Defender como arquero
+						(1,2,3,4): "5",  # Defender como defensa
+						(2,3):     "6",  # Meter gol pegando
+						(2,):       "7",  # Meter gol empujando
+						(1,2):     "7",  # Meter gol empujando
+                        (1,2,4):     "7",  # Meter gol empujando
 						}
 		
 	def parse_msg(self):
@@ -183,7 +184,7 @@ class Vision:
 			self.mostrar(f"Distance: {round(self.dist_mts, 2)} cm", 2)
 			self.mostrar(f"Velocity: {round((self.motorRPM_1 + self.motorRPM_2)/2, 1)} RPM", 1, True)
 			self.mostrar(f"Mensaje: {self.antena.msg}", 2, True)
-			self.mostrar(f"Estado: {self.state}", 3, True)
+			self.mostrar(f"Estado: {str(self.state)}", 3, True)
 			
 			## --- Mostrar pantallas y revisar evento de mouse --- ##
 			cv2.imshow(p("PROGRAM_WINDOW"), self.frame_filtered)
@@ -386,6 +387,7 @@ class Vision:
 				return self.car_vel
 			
 			elif self.task == "6.1":
+				print(self.objective)
 				if abs(np.degrees(self.angle)) <= p("ANGLE_THRESHOLD"):
 					self.task = "6.2"
 					self.kick_time = 0
@@ -408,7 +410,7 @@ class Vision:
 						self.kick_time = time.time()
 					if time.time() - self.kick_time >= p("KICK_TIME"):
 						self.kick_time = 0
-						self.task = "0"
+						self.task = None
 						return 0
 					else:
 						return p("MAX_VEL")
@@ -416,7 +418,7 @@ class Vision:
 					# Para task 7
 					if np.linalg.norm(self.a2 - self.p2) - p("LARGO_AUTO")/2 <= p("STOPPING_THRESHOLD"):
 						self.push = False
-						self.task = "7"
+						self.task = None
 						return 0
 					else:
 						return (max(0, self.dist_push - np.linalg.norm(self.a2 - self.p2)) * p("DIST_TO_PWR"))**0.75
@@ -512,9 +514,6 @@ class Vision:
 					self.c1, self.c2 = self.c2, self.c1
 				self.sgn = 1
 
-				#if code == "AI":
-				#	self.AI_mode = not self.AI_mode
-				
 				if code.isnumeric():
 					self.task = code
 				elif code == "reset": # Delete
@@ -562,6 +561,8 @@ class Vision:
 						self.antena.active = False
 					else:
 						self.antena.restart()
+				elif code == "AI":
+					self.AI_mode = not self.AI_mode
 				else:
 					self.AI_mode = False
 	
@@ -696,7 +697,7 @@ class Vision:
 		self.AI_mode = False
 
 		# AI
-		self.state = ""
+		self.state = ()
 
 	## --- Artifitial Intelligence --- ##
 	def get_state(self):
@@ -705,7 +706,7 @@ class Vision:
 		# 2 - Auto está atrás de la pelota
 		# 3 - Enemigo está adelante de la pelota
 		# 4 - Enemigo está en posició para pegar
-		self.state = ""
+		self.state = []
 		# Orientar
 		side = True
 		try:
@@ -717,38 +718,40 @@ class Vision:
 		try:
 			if side:
 				if self.p3[0] <= self.center[0]:
-					self.state += "1"
+					self.state.append(1)
 			else:
 				if self.p3[0] >= self.center[0]:
-					self.state += "1"
+					self.state.append(1)
 		except TypeError:
 			pass
 		
 		try:
 			if side:
 				if self.p2[0] <= self.p3[0]:
-					self.state += "2"
+					self.state.append(2)
 			else:
 				if self.p2[0] >= self.p3[0]:
-					self.state += "2"
+					self.state.append(2)
 		except TypeError:
 			pass
 
 		try:
 			if side:
 				if self.p5[0] >= self.p3[0]:
-					self.state += "3"
+					self.state.append(3)
 			else:
 				if self.p5[0] <= self.p3[0]:
-					self.state += "3"
+					self.state.append(3)
 		except TypeError:
 			pass
 
 		try:
 			if self.dist_mts_enemy <= 40 and abs(self.angle_enemy) <= 1:
-				self.state += "4"
+				self.state.append(4)
 		except TypeError:
 			pass
+		
+		self.state = tuple(self.state)
 
 # Leer parámetros
 def p(arg):
