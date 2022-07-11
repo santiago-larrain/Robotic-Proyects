@@ -1,17 +1,37 @@
 import json
 import numpy as np
+from PyQt5.QtCore import QObject, pyqtSignal
 
-class Car:
+class Car(QObject):
 
     def __init__(self):
+        super().__init__()
+
         self.front = None
         self.back = None
         self.scale = None
-        self.motor_L_RPM = 200
-        self.motor_R_RPM = 120
+        self.motor_L_RPM = 0
+        self.motor_R_RPM = 0
 
     def center_of_rotation(self):
         return self.back*(1 - self.p("gamma_1")) + self.front*self.p("gamma_1")
+
+    def set_speed(self, command):
+        if command == "w":
+            self.motor_L_RPM += 50
+            self.motor_R_RPM += 50
+        elif command == "a":
+            self.motor_L_RPM -= 25
+            self.motor_R_RPM += 25
+        elif command == "s":
+            self.motor_L_RPM -= 50
+            self.motor_R_RPM -= 50
+        elif command == "d":
+            self.motor_L_RPM += 25
+            self.motor_R_RPM -= 25
+        elif command == "stop":
+            self.motor_L_RPM = self.motor_R_RPM = 0
+        
 
     def move(self, time):
         velocity = (self.motor_R_RPM + self.motor_L_RPM)/2 *self.p("WHEEL_RADIOUS") /60  # [m/s]

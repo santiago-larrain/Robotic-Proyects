@@ -4,15 +4,22 @@ import json
 import threading
 import time
 
-class Display:
+from PyQt5.QtCore import QObject, pyqtSignal
 
-    def __init__(self):
+class Display(QObject):
+
+    keyboard_signal = pyqtSignal(str)
+    end_signal = pyqtSignal()
+
+    def __init__(self, app):
+        super().__init__()
+        self.app = app
+
         # --- Initialize pygame ---
         self.XMAX = self.p("WINDOW_WIDTH")      # Define the window's width
         self.YMAX = self.p("WINDOW_LENGHT")      # Define the window's height
         self.origen = np.array([self.XMAX/2, self.YMAX/2])
         self.scale = self.p("SCALE")
-        self.pix_per_unit = self.p("PIX_PER_UNIT")
         
         self.cars = []  # Lista de robots a dibujar
         self.ball = None
@@ -32,22 +39,45 @@ class Display:
         
         self.active = True
         while self.active:
+            start = time.time()
             self.initialize_screen()
             self.show_texts()
             self.draw_objects()
             pygame.display.flip()
 
             self.revisar_eventos()
-            time.sleep(1/self.p("FPS"))
+
+            sleep = max(1/self.p("FPS") - (time.time() - start), 0)
+            time.sleep(sleep)
+        
         pygame.quit()
+        self.app.exit()
 
     def revisar_eventos(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # pygame.QUITis sent when the user clicks the window's "X" button, or when the system 'asks' for the process to quit
                 self.active = False
+                self.end_signal.emit()
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self.active = False
+                self.end_signal.emit()
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
+                self.keyboard_signal.emit("w")
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
+                self.keyboard_signal.emit("a")
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+                self.keyboard_signal.emit("s")
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
+                self.keyboard_signal.emit("d")
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                self.keyboard_signal.emit("stop")
+
 
     def show_texts(self):
         font = pygame.font.SysFont('Arial', 25)
@@ -65,14 +95,16 @@ class Display:
         pygame.draw.line(self.screen, (200,200,200), np.array([self.XMAX/2, 10]), np.array([self.XMAX/2, self.YMAX - 10]), 1)
         pygame.draw.line(self.screen, (200,200,200), np.array([10, self.YMAX/2]), np.array([self.XMAX - 10, self.YMAX/2]), 1)
         # Malla que marca la unidad:
-        for i in range(self.YMAX//self.pix_per_unit + 1):
-            if i == self.YMAX//(2*self.pix_per_unit):
+        for i in range(self.YMAX//(self.scale//10) + 1):
+            if i == self.YMAX//(2*self.scale//10):
                 continue
-            pygame.draw.line(self.screen, (100,100,100), np.array([10, self.YMAX/2 + 30*(i - self.YMAX//(2*self.pix_per_unit))]), np.array([self.XMAX - self.YMAX//(2*self.pix_per_unit), self.YMAX/2 + 30*(i - self.YMAX//(2*self.pix_per_unit))]), 1)
-        for i in range(self.XMAX//self.pix_per_unit + 1):
-            if i == self.XMAX//(2*self.pix_per_unit):
+            pygame.draw.line(self.screen, (100,100,100), np.array([10, self.YMAX/2 + (self.scale//10)*(i - self.YMAX//(2*self.scale//10))]),
+                                                         np.array([self.XMAX - 10, self.YMAX/2 + (self.scale//10)*(i - self.YMAX//(2*self.scale//10))]), 1)
+        for i in range(self.XMAX//(self.scale//10) + 1):
+            if i == self.XMAX//(2*self.scale//10):
                 continue
-            pygame.draw.line(self.screen, (100,100,100), np.array([self.XMAX/2 + 30*(i - self.XMAX//(2*self.pix_per_unit)), 10]), np.array([self.XMAX/2 + 30*(i - self.XMAX//(2*self.pix_per_unit)), self.YMAX - self.XMAX//(2*self.pix_per_unit)]), 1)
+            pygame.draw.line(self.screen, (100,100,100), np.array([self.XMAX/2 + (self.scale//10)*(i - self.XMAX//(2*self.scale//10)), 10]),
+                                                         np.array([self.XMAX/2 + (self.scale//10)*(i - self.XMAX//(2*self.scale//10)), self.YMAX - 10]), 1)
         
     def draw_objects(self):
         # draw cars
@@ -93,16 +125,16 @@ class Display:
         CR = car.center_of_rotation()
         director = car.front - car.back
         director = np.array([director[0], -director[1]])
-        chassis = [self.display_car(CR, director, [(1 - car.p("gamma_2"))*car.p("CAR_LENGHT"), + car.p("CAR_WIDTH")/2]),
+        chassis = [self.display_car(CR, director, [(1 - car.p("gamma_2"))*car.p("CAR_LENGHT"), car.p("CAR_WIDTH")/2]),
                    self.display_car(CR, director, [(1 - car.p("gamma_2"))*car.p("CAR_LENGHT"), - car.p("CAR_WIDTH")/2]),
                    self.display_car(CR, director, [- car.p("gamma_2")*car.p("CAR_LENGHT"), - car.p("CAR_WIDTH")/2]),
-                   self.display_car(CR, director, [- car.p("gamma_2")*car.p("CAR_LENGHT"), + car.p("CAR_WIDTH")/2])]
-        wheels_L = [self.display_car(CR, director, [+ car.p("WHEEL_LENGHT")/2, + car.p("CAR_WIDTH")/2 + car.p("WHEEL_WIDTH")]),
-                    self.display_car(CR, director, [+ car.p("WHEEL_LENGHT")/2, + car.p("CAR_WIDTH")/2]),
-                    self.display_car(CR, director, [- car.p("WHEEL_LENGHT")/2, + car.p("CAR_WIDTH")/2]),
-                    self.display_car(CR, director, [- car.p("WHEEL_LENGHT")/2, + car.p("CAR_WIDTH")/2 + car.p("WHEEL_WIDTH")])]
-        wheels_R = [self.display_car(CR, director, [+ car.p("WHEEL_LENGHT")/2, - car.p("CAR_WIDTH")/2 - car.p("WHEEL_WIDTH")]),
-                    self.display_car(CR, director, [+ car.p("WHEEL_LENGHT")/2, - car.p("CAR_WIDTH")/2]),
+                   self.display_car(CR, director, [- car.p("gamma_2")*car.p("CAR_LENGHT"), car.p("CAR_WIDTH")/2])]
+        wheels_L = [self.display_car(CR, director, [car.p("WHEEL_LENGHT")/2, car.p("CAR_WIDTH")/2 + car.p("WHEEL_WIDTH")]),
+                    self.display_car(CR, director, [car.p("WHEEL_LENGHT")/2, car.p("CAR_WIDTH")/2]),
+                    self.display_car(CR, director, [- car.p("WHEEL_LENGHT")/2, car.p("CAR_WIDTH")/2]),
+                    self.display_car(CR, director, [- car.p("WHEEL_LENGHT")/2, car.p("CAR_WIDTH")/2 + car.p("WHEEL_WIDTH")])]
+        wheels_R = [self.display_car(CR, director, [car.p("WHEEL_LENGHT")/2, - car.p("CAR_WIDTH")/2 - car.p("WHEEL_WIDTH")]),
+                    self.display_car(CR, director, [car.p("WHEEL_LENGHT")/2, - car.p("CAR_WIDTH")/2]),
                     self.display_car(CR, director, [- car.p("WHEEL_LENGHT")/2, - car.p("CAR_WIDTH")/2]),
                     self.display_car(CR, director, [- car.p("WHEEL_LENGHT")/2, - car.p("CAR_WIDTH")/2 - car.p("WHEEL_WIDTH")])]
         return chassis, wheels_L, wheels_R
