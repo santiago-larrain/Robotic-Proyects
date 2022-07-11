@@ -7,6 +7,9 @@
     "gamma_1": 0.9,
     "gamma_2": 0.85,
 
+    "kp": 0.9,
+    "ki": 1,
+    "kd": 0.0001,
     "LINEAR_VISCOUS_FRICTION": 30,
     "ANGULAR_VISCOUS_FRICTION": 40
 }
