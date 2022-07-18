@@ -42,17 +42,17 @@ class Car(QObject):
 
     def set_speed(self, command):
         if command == "w":
-            self.ref_L += 0.5
-            self.ref_R += 0.5
+            self.ref_L += 1.0
+            self.ref_R += 1.0
         elif command == "a":
-            self.ref_L -= 0.1
-            self.ref_R += 0.1
+            self.ref_L -= 0.2
+            self.ref_R += 0.2
         elif command == "s":
-            self.ref_L -= 0.5
-            self.ref_R -= 0.5
+            self.ref_L -= 1.0
+            self.ref_R -= 1.0
         elif command == "d":
-            self.ref_L += 0.1
-            self.ref_R -= 0.1
+            self.ref_L += 0.2
+            self.ref_R -= 0.2
         elif command == "stop":
             self.ref_L = self.ref_R = 0.0
         

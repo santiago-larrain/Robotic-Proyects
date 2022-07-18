@@ -3,13 +3,13 @@
     "CAR_LENGHT": 0.23,
     "WHEEL_WIDTH": 0.025,
     "WHEEL_LENGHT": 0.1,
-    "WHEEL_RADIOUS": 0.1,
+    "WHEEL_RADIOUS": 0.05,
     "gamma_1": 0.9,
     "gamma_2": 0.85,
 
-    "kp": 2.0,
+    "kp": 1.0,
     "ki": 1.8,
-    "kd": 0.002,
+    "kd": 0.001,
 
     "LINEAR_FRICTION": 10,
     "ANGULAR_FRICTION": 0.1,
