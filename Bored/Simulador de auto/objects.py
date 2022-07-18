@@ -1,5 +1,6 @@
 import json
 import numpy as np
+from scipy.integrate import odeint
 from PyQt5.QtCore import QObject, pyqtSignal
 
 class Car(QObject):
@@ -12,9 +13,18 @@ class Car(QObject):
         self.scale = None
         self.ref_L = 0
         self.ref_R = 0
-        self.motor_L_RPM = 0
-        self.motor_R_RPM = 0
+        self.vel_L = 0
+        self.vel_R = 0
 
+        # Internal variables
+        self.velocity = 0
+        self.angular_velocity = 0
+
+        # Wheels torque
+        self.motor_L = 0
+        self.motor_R = 0
+
+        # PID variables
         self.motor_L_prev = 0
         self.motor_R_prev = 0
         self.error_L = 0
@@ -24,50 +34,33 @@ class Car(QObject):
         self.error_L_pprev = 0
         self.error_R_pprev = 0
 
+        # Other parameters
+        self.J = self.p("MASS")/12 * (self.p("CAR_WIDTH")**2 + self.p("CAR_LENGHT")**2)  # Inertia moment [kg*m**2]
+
     def center_of_rotation(self):
         return self.back*(1 - self.p("gamma_1")) + self.front*self.p("gamma_1")
 
     def set_speed(self, command):
         if command == "w":
-            self.ref_L += 50
-            self.ref_R += 50
+            self.ref_L += 0.5
+            self.ref_R += 0.5
         elif command == "a":
-            self.ref_L -= 25
-            self.ref_R += 25
+            self.ref_L -= 0.1
+            self.ref_R += 0.1
         elif command == "s":
-            self.ref_L -= 50
-            self.ref_R -= 50
+            self.ref_L -= 0.5
+            self.ref_R -= 0.5
         elif command == "d":
-            self.ref_L += 25
-            self.ref_R -= 25
+            self.ref_L += 0.1
+            self.ref_R -= 0.1
         elif command == "stop":
-            self.ref_L = self.ref_R = 0
-
-    def PID(self, period):
-        k0 = self.p("kp")*(1 + self.p("ki")*period + self.p("kd")/period)
-        k1 = -self.p("kp")*(1 + 2*self.p("kd")/period)
-        k2 = self.p("kp")*self.p("kd")/period
-
-        self.error_L = (self.ref_L - self.motor_L_RPM)
-        self.error_R = (self.ref_R - self.motor_R_RPM)
-        self.motor_L_RPM = self.motor_L_prev + k0*self.error_L + k1*self.error_L_prev + k2*self.error_L_pprev
-        self.motor_R_RPM = self.motor_R_prev + k0*self.error_R + k1*self.error_R_prev + k2*self.error_R_pprev
-        
-        self.motor_L_prev = self.motor_L_RPM
-        self.motor_R_prev = self.motor_R_RPM
-        self.error_L_pprev = self.error_L_prev
-        self.error_R_pprev = self.error_R_prev
-        self.error_L_prev = self.error_L
-        self.error_R_prev = self.error_R
-
-        print(self.motor_L_RPM, self.ref_L)
+            self.ref_L = self.ref_R = 0.0
         
     def move(self, time):
         self.PID(time)
-        velocity = (self.motor_R_RPM + self.motor_L_RPM)/2 *self.p("WHEEL_RADIOUS") /60  # [m/s]
-        angular_velocity = (self.motor_R_RPM - self.motor_L_RPM)*self.p("WHEEL_RADIOUS")/(self.p("CAR_WIDTH")/2) /60
-        step = velocity * time
-        theta = -angular_velocity * time
+        self.update_vel(time)
+        step = self.velocity * time
+        theta = -self.angular_velocity * time
         
         # Save initial points
         center = self.center_of_rotation()/self.scale
@@ -84,6 +77,41 @@ class Car(QObject):
         
         self.front = self.adjust_array(front)
         self.back = self.adjust_array(back)
+
+    def PID(self, period):
+        k0 = self.p("kp")*(1 + self.p("ki")*period + self.p("kd")/period)
+        k1 = -self.p("kp")*(1 + 2*self.p("kd")/period)
+        k2 = self.p("kp")*self.p("kd")/period
+
+        self.error_L = (self.ref_L - self.vel_L)  # m/s
+        self.error_R = (self.ref_R - self.vel_R)  # m/s
+        self.motor_L = self.motor_L_prev + k0*self.error_L + k1*self.error_L_prev + k2*self.error_L_pprev  # Nm
+        self.motor_R = self.motor_R_prev + k0*self.error_R + k1*self.error_R_prev + k2*self.error_R_pprev  # Nm
+        
+        # Update PID variables
+        self.motor_L_prev = self.motor_L
+        self.motor_R_prev = self.motor_R
+        self.error_L_pprev = self.error_L_prev
+        self.error_R_pprev = self.error_R_prev
+        self.error_L_prev = self.error_L
+        self.error_R_prev = self.error_R
+
+    def update_vel(self, deltaT):
+        # dynamic function for differential traction car
+        t = np.linspace(0, deltaT, 2)
+        
+        def v_fun(v, t):
+            dvdt = 1/self.p("MASS") * (self.motor_R/self.p("WHEEL_RADIOUS") + self.motor_L/self.p("WHEEL_RADIOUS") - self.p("LINEAR_FRICTION")*v)
+            return dvdt
+        self.velocity = odeint(v_fun, self.velocity, t)[-1][0]
+
+        def w_fun(w, t):
+            dwdt = 1/self.J * (self.p("CAR_LENGHT")/2 * self.motor_R/self.p("WHEEL_RADIOUS") - self.p("CAR_LENGHT")/2 * self.motor_L/self.p("WHEEL_RADIOUS") - self.p("ANGULAR_FRICTION")*w)
+            return dwdt
+        self.angular_velocity = odeint(w_fun, self.angular_velocity, t)[-1][0]
+
+        self.vel_L = self.velocity - self.angular_velocity*self.p("CAR_LENGHT")/4
+        self.vel_R = self.velocity + self.angular_velocity*self.p("CAR_LENGHT")/4
 
     def adjust_array(self, vector):
         return np.array([vector[0]*self.scale, vector[1]*self.scale])

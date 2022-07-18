@@ -40,12 +40,15 @@ class Display(QObject):
         self.active = True
         while self.active:
             start = time.time()
-            self.initialize_screen()
-            self.show_texts()
-            self.draw_objects()
-            pygame.display.flip()
-
             self.revisar_eventos()
+            
+            # Inizialize main screen
+            self.initialize_screen()
+
+            self.show_texts()      # Texts and different data
+            self.draw_objects()    # Cars, balls, arcs...
+            
+            pygame.display.flip()  # Flip page
 
             sleep = max(1/self.p("FPS") - (time.time() - start), 0)
             time.sleep(sleep)
