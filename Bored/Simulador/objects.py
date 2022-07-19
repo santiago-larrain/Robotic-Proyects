@@ -10,6 +10,8 @@ P_ROUTE = "Simulador/parameters/robot_parameters.json"
 
 class Car(QObject):
 
+    position_signal = pyqtSignal(tuple)
+
     def __init__(self):
         super().__init__()
         self.thread = threading.Thread(target= self.move, daemon= False)
@@ -68,8 +70,9 @@ class Car(QObject):
             self.front = self.adjust_array(front)
             self.back = self.adjust_array(back)
 
+            self.position_signal.emit((self.back, self.front))
+
             sleep = max(self.p("PERIOD") - (time.time() - start), 0)
-            print(sleep)
             time.sleep(sleep)
 
     def center_of_rotation(self):

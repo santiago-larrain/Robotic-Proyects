@@ -48,11 +48,10 @@ class Display(QObject):
             
             # Inizialize main screen
             self.initialize_screen()
-
-            self.show_texts()      # Texts and different data
-            self.draw_objects()    # Cars, balls, arcs...
-            
-            pygame.display.flip()  # Flip page
+            # Cars, balls, arcs...
+            self.draw_objects()
+            # Flip page
+            pygame.display.flip()
 
             sleep = max(1/self.p("FPS") - (time.time() - start), 0)
             time.sleep(sleep)
@@ -88,14 +87,31 @@ class Display(QObject):
                 self.keyboard_signal.emit("stop")
 
 
-    def show_texts(self):
+    def show_text(self, text, ID, left):
         font = pygame.font.SysFont('Arial', 25)
-        for text_tuple in self.texts:
-            text_str, ID, side = text_tuple
-            if side:
-                self.screen.blit(font.render(text_str, True, (255,255,255)), (self.XMAX - len(text_str)*11, 10 + ID*35))
-            else:
-                self.screen.blit(font.render(text_str, True, (255,255,255)), (10, 10 + ID*35))
+        if left:
+            self.screen.blit(font.render(text, True, (255,255,255)), (10, 10 + ID*35))
+        else:
+            self.screen.blit(font.render(text, True, (255,255,255)), (self.XMAX - len(text)*11, 10 + ID*35))
+
+    def show_vel_vs_ref(self, ref, vel, ID):
+        if ID == 0:
+            # Left
+            text = "L"
+            color_ref = (50,50,150)
+            color_vel = (100,100,255)
+        else:
+            # Right
+            text = "R"
+            color_ref = (150,50,50)
+            color_vel = (255,100,100)
+        pygame.draw.line(self.screen, color_ref, (80*(ID + 1), self.YMAX - 600), (80*(ID + 1), self.YMAX - 100), 5)
+        pygame.draw.circle(self.screen, color_ref, (80*(ID + 1), self.YMAX - 350), 10, 0)
+        pygame.draw.circle(self.screen, color_vel, (80*(ID + 1), self.YMAX - 350 - (vel - ref)*250), 10, 0)
+        font = pygame.font.SysFont('Arial', 25)
+        self.screen.blit(font.render(text, True, color_vel), (76*(ID + 1), self.YMAX - 650))
+        self.screen.blit(font.render(str(round(ref, 2)), True, color_vel), (20*(9*ID + 1) - 10, self.YMAX - 360))
+
     
     def initialize_screen(self):
         # Fill the screen with a dark blue color to use it as background color.
@@ -125,6 +141,14 @@ class Display(QObject):
             #pygame.draw.polygon(self.screen, tuple(self.p("CAR_PALLET_COLOR")), corners["PALLET_1"], 0)
             #pygame.draw.polygon(self.screen, tuple(self.p("CAR_PALLET_COLOR")), corners["PALLET_2"], 0)
             #pygame.draw.polygon(self.screen, tuple(self.p("CAR_PALLET_COLOR")), corners["PALLET_3"], 0)
+
+            # show position & velocitys --- TEST ---
+            cr = car.center_of_rotation()
+            self.show_text(text= f"Position: {round(cr[0], 2)},{round(cr[1], 2)}", ID= 0, left= True)
+            self.show_text(text= f"Position: {round(car.vel_L, 2)} | {round(car.vel_R, 2)}", ID= 1, left= True)
+            self.show_vel_vs_ref(ref= car.ref_L, vel= car.vel_L, ID= 0)
+            self.show_vel_vs_ref(ref= car.ref_R, vel= car.vel_R, ID= 1)
+
         
         if self.ball:
             pygame.draw.circle(self.screen, tuple(self.p("BALL_COLOR")), self.ball.pos, self.p("SCALE")*self.p("BALL_RADIOUS"), 0)
