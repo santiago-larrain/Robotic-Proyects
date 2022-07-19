@@ -1,5 +1,6 @@
 import threading
 import time
+import numpy as np
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
@@ -11,6 +12,9 @@ class Controller(QObject):
         super().__init__()
         self.control_speed = True
         self.thread = threading.Thread(target= self.start, daemon= False)
+
+        self.car1 = None
+        self.car2 = None
 
     def start(self):
         start = time.time()
