@@ -1,0 +1,7 @@
+{
+    "COM": "COM8",
+    "BR": 38400,
+    
+    "MESSAGE": "{motor1},{motor2};",
+    "PERIOD_COMS": 0.25
+}

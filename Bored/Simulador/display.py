@@ -6,7 +6,7 @@ import time
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
-P_ROUTE = "Simulador/display_parameters.json"
+P_ROUTE = "Simulador/parameters/display_parameters.json"
 
 class Display(QObject):
 
@@ -39,6 +39,8 @@ class Display(QObject):
         self.screen = pygame.display.set_mode((self.XMAX, self.YMAX))   # Display the window
         pygame.display.set_caption(self.p("WINDOW_NAME"))   # Set the window's title
         
+        for car in self.cars:
+            car.thread.start()
         self.active = True
         while self.active:
             start = time.time()
@@ -55,6 +57,8 @@ class Display(QObject):
             sleep = max(1/self.p("FPS") - (time.time() - start), 0)
             time.sleep(sleep)
         
+        for car in self.cars:
+            car.active = False
         pygame.quit()
         self.app.exit()
 
@@ -114,7 +118,6 @@ class Display(QObject):
     def draw_objects(self):
         # draw cars
         for car in self.cars:
-            car.move(1/self.p("FPS"))
             chassis, wheel_L, wheel_R = self.dimensions(car)
             pygame.draw.polygon(self.screen, tuple(self.p("CAR_CHASSIS_COLOR_1")), chassis, 0)
             pygame.draw.polygon(self.screen, tuple(self.p("CAR_WHEEL_COLOR")), wheel_L, 0)
@@ -173,6 +176,6 @@ class Display(QObject):
             try:
                 return data[parameter]
             except KeyError:
-                print(f"\033[1mWARNING:\033[0m There is no parameter called \033[1m{parameter}\033[0m")
+                print(f"\033[1mWARNING: [Display]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
                 return None
 

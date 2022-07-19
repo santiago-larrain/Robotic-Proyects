@@ -2,7 +2,7 @@
     "WINDOW_NAME": "Robotic Car v4.0",
     "WINDOW_WIDTH": 1900,
     "WINDOW_LENGHT": 950,
-    "SCALE": 500,
+    "SCALE": 400,
     "FPS": 45,
 
     "CAR_CHASSIS_COLOR_1": [200, 100, 100],

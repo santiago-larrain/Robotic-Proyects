@@ -1,15 +1,19 @@
 import json
 import numpy as np
+import time
 from scipy.integrate import odeint
 from PyQt5.QtCore import QObject, pyqtSignal
+import threading
 
 
-P_ROUTE = "Simulador/robot_parameters.json"
+P_ROUTE = "Simulador/parameters/robot_parameters.json"
 
 class Car(QObject):
 
     def __init__(self):
         super().__init__()
+        self.thread = threading.Thread(target= self.move, daemon= False)
+        self.active = True
 
         self.front = None
         self.back = None
@@ -40,51 +44,44 @@ class Car(QObject):
         # Other parameters
         self.J = self.p("MASS")/12 * (self.p("CAR_WIDTH")**2 + self.p("CAR_LENGHT")**2)  # Inertia moment [kg*m**2]
 
+    def move(self):
+        while self.active:
+            start = time.time()
+            self.PID()
+            self.update_vel()
+            step = self.velocity * self.p("PERIOD")
+            theta = -self.angular_velocity * self.p("PERIOD")
+            
+            # Save initial points
+            center = self.center_of_rotation()/self.scale
+            front = np.array([self.front[0], self.front[1]])/self.scale - center
+            back = np.array([self.back[0], self.back[1]])/self.scale - center
+
+            # Move the vehicle
+            steps = np.array([step*np.cos(theta + self.angle(front - back, np.array([1,0]))), -step*np.sin(theta + self.angle(front - back, np.array([1,0])))])
+            front = front + steps
+            back = back + steps
+            # Rotate the vehicle
+            front = center + self.R(theta).dot(front)
+            back = center + self.R(theta).dot(back) 
+            
+            self.front = self.adjust_array(front)
+            self.back = self.adjust_array(back)
+
+            sleep = max(self.p("PERIOD") - (time.time() - start), 0)
+            print(sleep)
+            time.sleep(sleep)
+
     def center_of_rotation(self):
         return self.back*(1 - self.p("gamma_1")) + self.front*self.p("gamma_1")
 
     def set_speed(self, command):
-        if command == "w":
-            self.ref_L += 1.0
-            self.ref_R += 1.0
-        elif command == "a":
-            self.ref_L -= 0.2
-            self.ref_R += 0.2
-        elif command == "s":
-            self.ref_L -= 1.0
-            self.ref_R -= 1.0
-        elif command == "d":
-            self.ref_L += 0.2
-            self.ref_R -= 0.2
-        elif command == "stop":
-            self.ref_L = self.ref_R = 0.0
-        
-    def move(self, time):
-        self.PID(time)
-        self.update_vel(time)
-        step = self.velocity * time
-        theta = -self.angular_velocity * time
-        
-        # Save initial points
-        center = self.center_of_rotation()/self.scale
-        front = np.array([self.front[0], self.front[1]])/self.scale - center
-        back = np.array([self.back[0], self.back[1]])/self.scale - center
+        self.ref_L, self.ref_R = command[0], command[1]
 
-        # Move the vehicle
-        steps = np.array([step*np.cos(theta + self.angle(front - back, np.array([1,0]))), -step*np.sin(theta + self.angle(front - back, np.array([1,0])))])
-        front = front + steps
-        back = back + steps
-        # Rotate the vehicle
-        front = center + self.R(theta).dot(front)
-        back = center + self.R(theta).dot(back) 
-        
-        self.front = self.adjust_array(front)
-        self.back = self.adjust_array(back)
-
-    def PID(self, period):
-        k0 = self.p("kp")*(1 + self.p("ki")*period + self.p("kd")/period)
-        k1 = -self.p("kp")*(1 + 2*self.p("kd")/period)
-        k2 = self.p("kp")*self.p("kd")/period
+    def PID(self):
+        k0 = self.p("kp")*(1 + self.p("ki")*self.p("PERIOD") + self.p("kd")/self.p("PERIOD"))
+        k1 = -self.p("kp")*(1 + 2*self.p("kd")/self.p("PERIOD"))
+        k2 = self.p("kp")*self.p("kd")/self.p("PERIOD")
 
         self.error_L = (self.ref_L - self.vel_L)  # m/s
         self.error_R = (self.ref_R - self.vel_R)  # m/s
@@ -99,9 +96,9 @@ class Car(QObject):
         self.error_L_prev = self.error_L
         self.error_R_prev = self.error_R
 
-    def update_vel(self, deltaT):
+    def update_vel(self):
         # dynamic function for differential traction car
-        t = np.linspace(0, deltaT, 2)
+        t = np.linspace(0, self.p("PERIOD"), 2)
         
         def v_fun(v, t):
             dvdt = 1/self.p("MASS") * (self.motor_R/self.p("WHEEL_RADIOUS") + self.motor_L/self.p("WHEEL_RADIOUS") - self.p("LINEAR_FRICTION")*v)
@@ -144,7 +141,7 @@ class Car(QObject):
             try:
                 return data[parameter]
             except KeyError:
-                print(f"\033[1mWARNING:\033[0m There is no parameter called \033[1m{parameter}\033[0m")
+                print(f"\033[1mWARNING: [Car]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
                 return None
 
 class Ball:
