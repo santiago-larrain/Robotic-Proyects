@@ -3,7 +3,7 @@ import numpy as np
 import time
 from scipy.integrate import odeint
 from PyQt5.QtCore import QObject, pyqtSignal
-import threading
+from threading import Thread
 
 
 P_ROUTE = "Simulador/parameters/robot_parameters.json"
@@ -12,14 +12,16 @@ class Car(QObject):
 
     position_signal = pyqtSignal(tuple)
 
-    def __init__(self):
+    def __init__(self, back, front, scale):
         super().__init__()
-        self.thread = threading.Thread(target= self.move, daemon= False)
-        self.active = True
+        self.thread = None
+        self.active = False
+        self.initial_back = back
+        self.initial_front = front
+        self.scale = scale
 
-        self.front = None
-        self.back = None
-        self.scale = None
+        self.front = front
+        self.back = back
         self.ref_L = 0
         self.ref_R = 0
         self.vel_L = 0
@@ -74,6 +76,8 @@ class Car(QObject):
 
             sleep = max(self.p("PERIOD") - (time.time() - start), 0)
             time.sleep(sleep)
+
+        print("\033[1mMESSAGE:\033[0m Car terminated")
 
     def center_of_rotation(self):
         return self.back*(1 - self.p("gamma_1")) + self.front*self.p("gamma_1")
@@ -147,10 +151,53 @@ class Car(QObject):
                 print(f"\033[1mWARNING: [Car]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
                 return None
 
+    def restart(self):
+        self.end()
+
+        self.active = True
+        self.thread = Thread(target= self.move, daemon= False)
+        self.thread.start()
+
+    def end(self):
+        self.active = False
+
+        self.back = self.initial_back
+        self.front = self.initial_front
+        self.ref_L = 0
+        self.ref_R = 0
+        self.vel_L = 0
+        self.vel_R = 0
+
+        # Internal variables
+        self.velocity = 0
+        self.angular_velocity = 0
+
+        # Wheels torque
+        self.motor_L = 0
+        self.motor_R = 0
+
+        # PID variables
+        self.motor_L_prev = 0
+        self.motor_R_prev = 0
+        self.error_L = 0
+        self.error_R = 0
+        self.error_L_prev = 0 
+        self.error_R_prev = 0
+        self.error_L_pprev = 0
+        self.error_R_pprev = 0
+
+        try:
+            self.thread.join()
+        except AttributeError:
+            pass
+        self.thread = None
+
+
 class Ball:
 
     def __init__(self):
         pass
+
 
 class Arc:
 
