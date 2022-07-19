@@ -41,7 +41,21 @@ class BTComs(QObject):
 
 	def set_message(self, msg_tuple):
 		self.msg = self.p("MESSAGE").format(motor1= round(msg_tuple[0], 4), motor2= round(msg_tuple[1], 4))
+	
+	def p(self, parameter):
+		with open(P_ROUTE, "r") as file:
+			data = json.load(file)
+			try:
+				return data[parameter]
+			except KeyError:
+				print(f"\033[1mWARNING: [BTComs]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
+				return None
 
+	def toggle_OnOff(self):
+		if self.active:
+			self.end()
+		else:
+			self.restart()
 
 	def restart(self):
 		self.end()
@@ -63,15 +77,6 @@ class BTComs(QObject):
 		self.breaked = False
 		self.ser = None
 		self.thread = None
-
-	def p(self, parameter):
-		with open(P_ROUTE, "r") as file:
-			data = json.load(file)
-			try:
-				return data[parameter]
-			except KeyError:
-				print(f"\033[1mWARNING: [BTComs]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
-				return None
 
 
 class SimComs(QObject):
@@ -97,6 +102,21 @@ class SimComs(QObject):
 	def set_message(self, msg_tuple):
 		self.msg = (round(msg_tuple[0], 4), round(msg_tuple[1], 4))
 
+	def p(self, parameter):
+		with open(P_ROUTE, "r") as file:
+			data = json.load(file)
+			try:
+				return data[parameter]
+			except KeyError:
+				print(f"\033[1mWARNING: [SimComs]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
+				return None
+	
+	def toggle_OnOff(self):
+		if self.active:
+			self.end()
+		else:
+			self.restart()
+	
 	def restart(self):
 		self.end()
 		
@@ -107,13 +127,8 @@ class SimComs(QObject):
 	
 	def end(self):
 		self.active = False
+		try:
+			self.thread.join()
+		except AttributeError:
+			pass
 		self.thread = None
-
-	def p(self, parameter):
-		with open(P_ROUTE, "r") as file:
-			data = json.load(file)
-			try:
-				return data[parameter]
-			except KeyError:
-				print(f"\033[1mWARNING: [SimComs]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
-				return None

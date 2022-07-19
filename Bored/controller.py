@@ -1,4 +1,4 @@
-import threading
+from threading import Thread
 import time
 import numpy as np
 
@@ -11,14 +11,12 @@ class Controller(QObject):
     def __init__(self):
         super().__init__()
         self.control_speed = True
-        self.thread = threading.Thread(target= self.start, daemon= False)
-
-        self.car1 = None
-        self.car2 = None
+        self.thread = None
+        self.active = False
 
     def start(self):
         start = time.time()
-        while time.time() - start <= 9.8:
+        while time.time() - start <= 9.8 and self.active:
             if self.control_speed:
                 if time.time() - start <= 1:
                     self.update_message_signal.emit((1,1))
@@ -39,6 +37,22 @@ class Controller(QObject):
             time.sleep(0.1)
         if self.control_speed:
             self.update_message_signal.emit((0,0))
+        print("\033[1mMESSAGE:\033[0m Controller terminated")
     
     def toggle_controller(self, control):
         self.control_speed = control # bool
+
+    def restart(self):
+        self.end()
+
+        self.active = True
+        self.thread = Thread(target= self.start, daemon= False)
+        self.thread.start()
+
+    def end(self):
+        self.active = False
+        try:
+            self.thread.join()
+        except AttributeError:
+            pass
+        self.thread = None
