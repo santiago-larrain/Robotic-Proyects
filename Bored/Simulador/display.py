@@ -94,23 +94,23 @@ class Display(QObject):
         else:
             self.screen.blit(font.render(text, True, (255,255,255)), (self.XMAX - len(text)*11, 10 + ID*35))
 
-    def show_vel_vs_ref(self, ref, vel, ID):
-        if ID == 0:
-            # Left
-            text = "L"
-            color_ref = (50,50,150)
-            color_vel = (100,100,255)
-        else:
-            # Right
-            text = "R"
-            color_ref = (150,50,50)
-            color_vel = (255,100,100)
-        pygame.draw.line(self.screen, color_ref, (80*(ID + 1), self.YMAX - 600), (80*(ID + 1), self.YMAX - 100), 5)
-        pygame.draw.circle(self.screen, color_ref, (80*(ID + 1), self.YMAX - 350), 10, 0)
-        pygame.draw.circle(self.screen, color_vel, (80*(ID + 1), self.YMAX - 350 - (vel - ref)*250), 10, 0)
-        font = pygame.font.SysFont('Arial', 25)
-        self.screen.blit(font.render(text, True, color_vel), (76*(ID + 1), self.YMAX - 650))
-        self.screen.blit(font.render(str(round(ref, 2)), True, color_vel), (20*(9*ID + 1) - 10, self.YMAX - 360))
+    def show_vel_vs_ref(self, ref, vel):
+        for ID in range(2):
+            if ID == 0:
+                # Left
+                text = "L"
+                color = (80,80,200)
+            else:
+                # Right
+                text = "R"
+                color = (200,80,80)
+            pygame.draw.line(self.screen, color, (80*(ID/2 + 1), self.YMAX - 550), (80*(ID/2 + 1), self.YMAX - 50), 5)
+            pygame.draw.circle(self.screen, color, (80*(ID/2 + 1), self.YMAX - 300), 10, 0)
+            pygame.draw.circle(self.screen, (200,200,200), (80*(ID/2 + 1), self.YMAX - 299 - (vel - ref)*250), 5, 0)
+            font = pygame.font.SysFont('Arial', 25)
+            self.screen.blit(font.render(text, True, color), (76*(ID/2 + 1), self.YMAX - 590))
+            self.screen.blit(font.render(str(round(ref, 2)), True, color), (20*(7*ID + 1) - 10, self.YMAX - 315))
+            self.screen.blit(font.render(str(round(vel, 2)), True, (200,200,200)), (20*(7*ID + 1) - 10, self.YMAX - 314 - np.arctan(vel - ref)*160))
 
     
     def initialize_screen(self):
@@ -144,10 +144,8 @@ class Display(QObject):
 
             # show position & velocitys --- TEST ---
             cr = car.center_of_rotation()
-            self.show_text(text= f"Position: {round(cr[0], 2)},{round(cr[1], 2)}", ID= 0, left= True)
-            self.show_text(text= f"Position: {round(car.vel_L, 2)} | {round(car.vel_R, 2)}", ID= 1, left= True)
-            self.show_vel_vs_ref(ref= car.ref_L, vel= car.vel_L, ID= 0)
-            self.show_vel_vs_ref(ref= car.ref_R, vel= car.vel_R, ID= 1)
+            self.show_text(text= f"Position: {int(cr[0])}, {int(cr[1])}", ID= 0, left= True)
+            self.show_vel_vs_ref(ref= car.ref_L, vel= car.vel_L)
 
         
         if self.ball:
