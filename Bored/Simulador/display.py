@@ -174,9 +174,6 @@ class Display(QObject):
         vector = self.R(self.angle(np.array([1,0]), director)).dot(vector)
         return CR + np.array([int(vector[0]*self.p("SCALE")), -int(vector[1]*self.p("SCALE"))])
 
-    def add_car(self, car):
-        self.cars.append(car)
-
     def p(self, parameter):
         with open(P_ROUTE, "r") as file:
             data = json.load(file)

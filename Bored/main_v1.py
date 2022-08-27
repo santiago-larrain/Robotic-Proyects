@@ -25,10 +25,8 @@ if __name__ == "__main__":
     back = np.array([display.p("WINDOW_WIDTH")//2 - 10, display.p("WINDOW_LENGHT")//2])
     front = np.array([display.p("WINDOW_WIDTH")//2, display.p("WINDOW_LENGHT")//2])
     robot = Car(back, front, scale)
+    display.cars.append(robot)
 
-    back = np.array([display.p("WINDOW_WIDTH")//2 - 10, display.p("WINDOW_LENGHT")//2])
-    front = np.array([display.p("WINDOW_WIDTH")//2, display.p("WINDOW_LENGHT")//2])
-    enemy = Car(back, front, scale)
 
     # Comms
     coms = SimComs()
@@ -38,9 +36,6 @@ if __name__ == "__main__":
 
     # Task Manager
     task_manager = TaskManager()
-    task_manager.cars.append(robot)
-    task_manager.cars.append(enemy)
-
 
     # --- Connections ---
 
@@ -54,10 +49,6 @@ if __name__ == "__main__":
     )
 
     # --- Task Manager ---
-    # Add car
-    task_manager.add_car_signal.connect(
-        display.add_car
-    )
     # toggle automatic/manual drive
     task_manager.speed_controller_signal.connect(
         controller.toggle_controller

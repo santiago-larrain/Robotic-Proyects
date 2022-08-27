@@ -56,13 +56,6 @@ class TaskManager(QObject):
                 self.speed_controller_signal.emit(True)
                 if key == pygame.K_o:
                     self.toggle_OnOff_coms_signal.emit()
-                elif key == pygame.K_c:
-                    try:
-                        car = self.cars[self.car_counter]
-                        self.add_car_signal.emit(car)
-                        self.car_counter += 1
-                    except IndexError:
-                        print(f"\033[1mWARNING:\033[0m There are no more cars")
                 else:
                     print(key)
 

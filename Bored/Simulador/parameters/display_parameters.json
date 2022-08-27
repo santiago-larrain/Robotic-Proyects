@@ -3,7 +3,7 @@
     "WINDOW_WIDTH": 1900,
     "WINDOW_LENGHT": 950,
     "SCALE": 300,
-    "FPS": 45,
+    "FPS": 30,
 
     "CAR_CHASSIS_COLOR_1": [200, 100, 100],
     "CAR_CHASSIS_COLOR_2": [100, 200, 100],
