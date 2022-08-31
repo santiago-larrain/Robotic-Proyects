@@ -43,19 +43,20 @@ if __name__ == "__main__":
     display.keyboard_signal.connect(
         task_manager.manage_keyboard
     )
-    # Update message
+
+    # Update message from controller to coms
     controller.update_message_signal.connect(
         coms.set_message
     )
 
     # --- Task Manager ---
-    # toggle automatic/manual drive
-    task_manager.speed_controller_signal.connect(
-        controller.toggle_controller
+    # set manual drive
+    task_manager.manual_drive_signal.connect(
+        controller.set_manual_drive
     )
-    # set manual speed
-    task_manager.set_speed_signal.connect(
-        coms.set_message
+    # set task for automatic drive
+    task_manager.task_signal.connect(
+        controller.set_task
     )
     # Toggle On/Off coms
     task_manager.toggle_OnOff_coms_signal.connect(

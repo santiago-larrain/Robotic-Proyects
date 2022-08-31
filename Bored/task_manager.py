@@ -13,8 +13,8 @@ class TaskManager(QObject):
     restart_signal = pyqtSignal()
     end_signal = pyqtSignal()
 
-    set_speed_signal = pyqtSignal(tuple)
-    speed_controller_signal = pyqtSignal(bool)
+    manual_drive_signal = pyqtSignal(tuple)
+    task_signal = pyqtSignal(str)
     toggle_OnOff_coms_signal = pyqtSignal()
     add_car_signal = pyqtSignal(object)
     set_speed_1_signal = pyqtSignal(tuple)
@@ -24,9 +24,7 @@ class TaskManager(QObject):
     def __init__(self):
         super().__init__()
 
-        self.cars = []
-        self.car_counter = 0
-        self.current_car = 0
+        self.task = 0
     
     def manage_keyboard(self, key):
         # Check for start/end program
@@ -35,27 +33,28 @@ class TaskManager(QObject):
         elif key == pygame.K_ESCAPE:
             self.end_program()
         else:
-            # Check manual drive
+            # Manual drive
             if key == pygame.K_w:
-                self.speed_controller_signal.emit(False)
-                self.set_speed_signal.emit((1,1))
+                self.task = 0
+                self.manual_drive_signal.emit((1,1))
             elif key == pygame.K_a:
-                self.speed_controller_signal.emit(False)
-                self.set_speed_signal.emit((0.35,0.65))
+                self.task = 0
+                self.manual_drive_signal.emit((0.35,0.65))
             elif key == pygame.K_s:
-                self.speed_controller_signal.emit(False)
-                self.set_speed_signal.emit((-1,-1))
+                self.task = 0
+                self.manual_drive_signal.emit((-1,-1))
             elif key == pygame.K_d:
-                self.speed_controller_signal.emit(False)
-                self.set_speed_signal.emit((0.65,0.35))
+                self.task = 0
+                self.manual_drive_signal.emit((0.65,0.35))
             elif key == pygame.K_SPACE:
-                self.speed_controller_signal.emit(False)
-                self.set_speed_signal.emit((0,0))
+                self.task = 0
+                self.manual_drive_signal.emit((0,0))
             else:
-                # Set automatic drive and check other entrys
-                self.speed_controller_signal.emit(True)
                 if key == pygame.K_o:
                     self.toggle_OnOff_coms_signal.emit()
+                if key == pygame.K_0:
+                    self.task_signal.emit("0")
+                # Automatic drive based on tasks
                 else:
                     print(key)
 

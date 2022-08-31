@@ -1,8 +1,13 @@
 from threading import Thread
+import json
 import time
 import numpy as np
 
 from PyQt5.QtCore import QObject, pyqtSignal
+
+from tasks import task_1, task_2
+
+P_ROUTE = "parameters/controller_parameters.json"
 
 class Controller(QObject):
 
@@ -10,43 +15,50 @@ class Controller(QObject):
 
     def __init__(self):
         super().__init__()
-        self.control_speed = True
+        self.motor_speed = (0,0)
+        self.task = "0"
         self.thread = None
         self.active = False
 
-    def start(self):
-        start = time.time()
-        while time.time() - start <= 9.8 and self.active:
-            if self.control_speed:
-                if time.time() - start <= 1:
-                    self.update_message_signal.emit((1,1))
-                elif time.time() - start <= 3:
-                    self.update_message_signal.emit((0.35,0.65))
-                elif time.time() - start <= 5:
-                    self.update_message_signal.emit((0.65,0.35))
-                elif time.time() - start <= 6:
-                    self.update_message_signal.emit((-2,-2))
-                elif time.time() - start <= 7:
-                    self.update_message_signal.emit((5,5))
-                elif time.time() - start <= 8:
-                    self.update_message_signal.emit((-1,-1))
-                elif time.time() - start <= 9:
-                    self.update_message_signal.emit((-1.1,-1))
-                else:
-                    self.update_message_signal.emit((-0.9,-1))
-            time.sleep(0.1)
-        if self.control_speed:
-            self.update_message_signal.emit((0,0))
-        print("\033[1mMESSAGE:\033[0m Controller terminated")
+    def automatic_tasks(self):
+        while self.active:
+            start = time.time()
+            if self.task == "1":
+                self.motor_speed = task_1(self.motor_speed)
+                self.update_message_signal.emit(self.motor_speed)
+            elif self.task == "2":
+                self.motor_speed = task_2(self.motor_speed)
+                self.update_message_signal.emit(self.motor_speed)
+            
+            
+            sleep = max(self.p("SLEEP") - (time.time() - start), 0)
+            time.sleep(sleep)
     
-    def toggle_controller(self, control):
-        self.control_speed = control # bool
+    def set_manual_drive(self, speed):
+        self.task = "M"     # Para indicar que está en control manual
+        if self.active:
+            self.end()  # Terminar con el controlador automático
+        self.motor_speed = speed    # Tuple (m1, m2)
+        self.update_message_signal.emit(self.motor_speed)
+    
+    def set_task(self, task):
+        self.task = task
+        if not self.active:
+            self.restart()
+
+    def p(self, parameter):
+        with open(P_ROUTE, "r") as file:
+            data = json.load(file)
+            try:
+                return data[parameter]
+            except KeyError:
+                print(f"\033[1mWARNING: [Display]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
+                return None
 
     def restart(self):
         self.end()
-
         self.active = True
-        self.thread = Thread(target= self.start, daemon= False)
+        self.thread = Thread(target= self.automatic_tasks, daemon= False)
         self.thread.start()
 
     def end(self):
