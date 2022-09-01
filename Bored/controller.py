@@ -7,9 +7,9 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 from tasks import task_1, task_2
 
-P_ROUTE = "parameters/controller_parameters.json"
-
 class Controller(QObject):
+
+    p_route = "parameters/controller_parameters.json"
 
     update_message_signal = pyqtSignal(tuple)
 
@@ -47,12 +47,12 @@ class Controller(QObject):
             self.restart()
 
     def p(self, parameter):
-        with open(P_ROUTE, "r") as file:
+        with open(self.p_route, "r") as file:
             data = json.load(file)
             try:
                 return data[parameter]
             except KeyError:
-                print(f"\033[1mWARNING: [Display]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
+                print(f"\033[1mWARNING: [Controller]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
                 return None
 
     def restart(self):

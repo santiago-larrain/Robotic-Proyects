@@ -5,6 +5,7 @@ from Simulador.objects import Car, Ball, Arc
 from coms import BTComs, SimComs
 from controller import Controller
 from task_manager import TaskManager
+from observer import Vision
 import numpy as np
 
 if __name__ == "__main__":
@@ -18,6 +19,8 @@ if __name__ == "__main__":
     # --- Create classes ---
     # Display class for simulation
     display = Display(app)
+    # Vision for real deal
+    observer = Vision(nCam= 0)
 
     # Create and add main car
     scale = display.p("SCALE")
@@ -96,6 +99,8 @@ if __name__ == "__main__":
 
     # --- Initialize program ---
     display.restart()
+    
+
 
     # --- Initialize QApp ---
     app.exec_()

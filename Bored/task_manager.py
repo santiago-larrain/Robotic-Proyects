@@ -6,9 +6,9 @@ import time
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
-P_ROUTE = "Simulador/parameters/display_parameters.json"
-
 class TaskManager(QObject):
+
+    p_route = "Simulador/parameters/display_parameters.json"
 
     restart_signal = pyqtSignal()
     end_signal = pyqtSignal()
