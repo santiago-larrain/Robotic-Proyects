@@ -1,14 +1,12 @@
 import numpy as np
-import pygame       # Load pygame for IO-interfacing 
 import json
-import threading
-import time
+import pygame
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
-class TaskManager(QObject):
+P_ROUTE = "parameters/task_manager_parameters.json"
 
-    p_route = "Simulador/parameters/display_parameters.json"
+class TaskManager(QObject):
 
     restart_signal = pyqtSignal()
     end_signal = pyqtSignal()
@@ -16,10 +14,6 @@ class TaskManager(QObject):
     manual_drive_signal = pyqtSignal(tuple)
     task_signal = pyqtSignal(str)
     toggle_OnOff_coms_signal = pyqtSignal()
-    add_car_signal = pyqtSignal(object)
-    set_speed_1_signal = pyqtSignal(tuple)
-    set_speed_2_signal = pyqtSignal(tuple)
-    change_car_signal = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
@@ -27,11 +21,13 @@ class TaskManager(QObject):
         self.task = 0
     
     def manage_keyboard(self, key):
+        print(key)
         # Check for start/end program
-        if key == pygame.K_RETURN:
-            self.start_program()
-        elif key == pygame.K_ESCAPE:
+        if key == pygame.K_ESCAPE:
+            print("ending...")
             self.end_program()
+        elif key == pygame.K_RETURN:
+            self.restart_program()
         else:
             # Manual drive
             if key == pygame.K_w:
@@ -58,7 +54,16 @@ class TaskManager(QObject):
                 else:
                     print(key)
 
-    def start_program(self):
+    def p(self, parameter):
+        with open(self.p_route, "r") as file:
+            data = json.load(file)
+            try:
+                return data[parameter]
+            except KeyError:
+                print(f"\033[1mWARNING: [Task Manager]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
+                return None
+
+    def restart_program(self):
         self.restart_signal.emit()
 
     def end_program(self):

@@ -5,34 +5,43 @@ from Simulador.objects import Car, Ball, Arc
 from coms import BTComs, SimComs
 from controller import Controller
 from task_manager import TaskManager
-from observer import Vision
+from vision import Vision
 import numpy as np
 
 if __name__ == "__main__":
-    def hook(type, value, traceback):
-        print(type)
-        print(traceback)
-    sys.__excepthook__ = hook
-    app = QApplication([])
+    simulation = False
 
+    if simulation:
+        def hook(type, value, traceback):
+            print(type)
+            print(traceback)
+        sys.__excepthook__ = hook
+        app = QApplication([])
 
-    # --- Create classes ---
-    # Display class for simulation
-    display = Display(app)
-    # Vision for real deal
-    observer = Vision(nCam= 0)
+        # Display class for simulation
+        display = Display(app)
 
-    # Create and add main car
-    scale = display.p("SCALE")
+        # Create and add main car
+        scale = display.p("SCALE")
+        back = np.array([display.p("WINDOW_WIDTH")//2 - 10, display.p("WINDOW_LENGHT")//2])
+        front = np.array([display.p("WINDOW_WIDTH")//2, display.p("WINDOW_LENGHT")//2])
+        robot = Car(back, front, scale)
+        display.cars.append(robot)
 
-    back = np.array([display.p("WINDOW_WIDTH")//2 - 10, display.p("WINDOW_LENGHT")//2])
-    front = np.array([display.p("WINDOW_WIDTH")//2, display.p("WINDOW_LENGHT")//2])
-    robot = Car(back, front, scale)
-    display.cars.append(robot)
+        # Comms
+        coms = SimComs()
 
+    else:
+        # Vision for real deal
+        vision = Vision(nCam= 0)
 
-    # Comms
-    coms = SimComs()
+        # Comms
+        coms = BTComs()
+        
+    
+    ##########################
+    # --- Create classes --- #
+    ##########################
 
     # Controller
     controller = Controller()
@@ -43,9 +52,19 @@ if __name__ == "__main__":
     # --- Connections ---
 
     # Manage keyboard input
-    display.keyboard_signal.connect(
-        task_manager.manage_keyboard
-    )
+    if simulation:
+        # Connect keboard
+        display.keyboard_signal.connect(
+            task_manager.manage_keyboard
+        )
+        # Set speed via signals (not BT)
+        coms.send_message_signal.connect(
+            robot.set_speed
+        )
+    else:
+        vision.keyboard_signal.connect(
+            task_manager.manage_keyboard
+        )
 
     # Update message from controller to coms
     controller.update_message_signal.connect(
@@ -66,11 +85,6 @@ if __name__ == "__main__":
         coms.toggle_OnOff
     )
 
-    # --- Only for simulations ---
-    coms.send_message_signal.connect(
-        robot.set_speed
-    )
-
 
     # --- Start program ---
     task_manager.restart_signal.connect(
@@ -79,9 +93,15 @@ if __name__ == "__main__":
     task_manager.restart_signal.connect(
         coms.restart
     )
-    task_manager.restart_signal.connect(
-        robot.restart
-    )
+
+    if simulation:
+        task_manager.restart_signal.connect(
+            robot.restart
+        )
+    else:
+        task_manager.restart_signal.connect(
+            vision.restart
+        )
 
     # --- End program ---
     task_manager.end_signal.connect(
@@ -90,17 +110,22 @@ if __name__ == "__main__":
     task_manager.end_signal.connect(
         coms.end
     )
-    task_manager.end_signal.connect(
-        robot.end
-    )
-    task_manager.end_signal.connect(
-        display.end
-    )
+    if simulation:
+        task_manager.end_signal.connect(
+            robot.end
+        )
+        task_manager.end_signal.connect(
+            display.end
+        )
+    else:
+        task_manager.end_signal.connect(
+            vision.end
+        )
 
     # --- Initialize program ---
-    display.restart()
-    
-
-
-    # --- Initialize QApp ---
-    app.exec_()
+    if simulation:
+        display.restart()
+        # --- Initialize QApp ---
+        app.exec_()
+    else:
+        vision.thread.start()

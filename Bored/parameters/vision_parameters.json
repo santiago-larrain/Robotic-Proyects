@@ -1,0 +1,13 @@
+{
+    "MAIN_WINDOW": "Observador",
+    "PROGRAM_WINDOW": "Vista foaclizada",
+    "MW_X": 0,
+    "MW_Y": 0,
+    "PW_X": 640,
+    "PW_Y": 0,
+    "RANGE": [5, 50, 60],
+    "DEFAULT_COLOR": [170, 255, 255],
+
+    "LARGO_AUTO": 10,
+    "MESSAGE": "{motor1},{motor2};"
+}

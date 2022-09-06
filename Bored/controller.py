@@ -2,14 +2,13 @@ from threading import Thread
 import json
 import time
 import numpy as np
-
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from tasks import task_1, task_2
 
-class Controller(QObject):
+P_ROUTE = "parameters/controller_parameters.json"
 
-    p_route = "parameters/controller_parameters.json"
+class Controller(QObject):
 
     update_message_signal = pyqtSignal(tuple)
 
@@ -47,7 +46,7 @@ class Controller(QObject):
             self.restart()
 
     def p(self, parameter):
-        with open(self.p_route, "r") as file:
+        with open(P_ROUTE, "r") as file:
             data = json.load(file)
             try:
                 return data[parameter]

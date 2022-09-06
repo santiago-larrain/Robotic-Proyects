@@ -3,12 +3,11 @@ import pygame       # Load pygame for IO-interfacing
 import json
 from threading import Thread
 import time
-
 from PyQt5.QtCore import QObject, pyqtSignal
 
-class Display(QObject):
+P_ROUTE = "Simulador/parameters/display_parameters.json"
 
-    p_route = "Simulador/parameters/display_parameters.json"
+class Display(QObject):
 
     keyboard_signal = pyqtSignal(int)
 
@@ -175,7 +174,7 @@ class Display(QObject):
         return CR + np.array([int(vector[0]*self.p("SCALE")), -int(vector[1]*self.p("SCALE"))])
 
     def p(self, parameter):
-        with open(self.p_route, "r") as file:
+        with open(P_ROUTE, "r") as file:
             data = json.load(file)
             try:
                 return data[parameter]

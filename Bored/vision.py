@@ -2,17 +2,24 @@ import numpy as np
 import cv2
 import json
 import time
-from threading import Thread
+from threading import Thread, Event
 from PyQt5.QtCore import QObject, pyqtSignal
+
+P_ROUTE = "parameters/vision_parameters.json"
 
 class Vision(QObject):
 
-	p_route = "parameters/observer_parameters.json"
-
-	update_visual_signal = pyqtSignal()
-	keyboard_entry_signal = pyqtSignal(int)
-
+	keyboard_signal = pyqtSignal(int)
+	keyboard_event = Event()
+	
 	def __init__(self, nCam= 0):
+		super().__init__()
+
+		# Inicializar cámara
+		self.cap = cv2.VideoCapture(nCam, cv2.CAP_DSHOW) #
+		# self.cap.set(cv2.CAP_PROP_SETTINGS, 1)
+		self.active = True  # Parámetro bajo el cual el Thread corre
+		self.thread = Thread(target= self.thread_ver, daemon= False)
 
 		# Rango de error y colores predeterminados
 		self.rango = np.array(self.p("RANGE"))
@@ -20,12 +27,6 @@ class Vision(QObject):
 		self.enemy = False
 		self.center = np.array([320, 240])
 		
-		# Inicializar cámara
-		self.cap = cv2.VideoCapture(nCam, cv2.CAP_DSHOW) #
-		# self.cap.set(cv2.CAP_PROP_SETTINGS, 1)
-		self.active = False  # Parámetro bajo el cual el Thread corre
-		self.thread = Thread(target= self.thread_ver, daemon= False)
-
 		# Valores para controlador
 		self.alpha = 0
 		self.dist_pix = 0
@@ -43,7 +44,6 @@ class Vision(QObject):
 		self.objective = None
 
 		# Otras variables
-		self.one_shot = False	# OneShot de prints
 		self.count = 0		# Contador para ir cambiando los colores a utilizar
 
 	def thread_ver(self):
@@ -79,13 +79,15 @@ class Vision(QObject):
 			cv2.setMouseCallback(self.p("MAIN_WINDOW"), self.click_event)
 			
 			## --- Revisar inputs y emitir estado --- ##
+			self.keyboard_event.set()
 			self.keyboard()
-			self.update_visual_signal.emit()
+			self.keyboard_event.wait()
 			
-			time.sleep(max(self.p("SLEEP") - (time.time() - start), 0))
+			# time.sleep(max(self.p("SLEEP") - (time.time() - start), 0))
 		
 		self.cap.release()
 		cv2.destroyAllWindows()
+
 
 	## ---------- Funciones para ajustar y realizar tareas pequeñas y repetitivas ---------- ##
 
@@ -261,10 +263,13 @@ class Vision(QObject):
 	
 	def keyboard(self):
 		# Leer comandos del teclado y emitirlos a los HQ
-		key = cv2.waitKey(5)
-		self.keyboard_entry_signal.emit(key)
+		key = cv2.waitKey(1)
+		if key != -1:
+			self.keyboard_signal.emit(key)
+			if key == 27:
+				self.end()
 
-	def reset(self):
+	def restart(self):
 		# Restore initial values for variables
 		self.end()
 
@@ -272,8 +277,7 @@ class Vision(QObject):
 		self.enemy = False
 		self.center = np.array([320, 240])
 
-		self.active = True
-		self.thread = Thread(target= self.thread_ver, daemon= False)
+		self.active = True  # Parámetro bajo el cual el Thread corre
 
 		# Valores para controlador
 		self.alpha = 0
@@ -292,23 +296,23 @@ class Vision(QObject):
 		self.objective = None
 
 		# Otras variables
-		self.one_shot = False	# OneShot de prints
 		self.count = 0		# Contador para ir cambiando los colores a utilizar
+
+		self.thread.start()
 
 	def end(self):
 		self.active = False
 		try:
 			self.thread.join()
-		except AttributeError:
+		except RuntimeError:
 			pass
-		self.thread = None
 
 	# Leer parámetros
 	def p(self, parameter):
-		with open(self.p_route, "r") as file:
+		with open(P_ROUTE, "r") as file:
 			data = json.load(file)
 			try:
 				return data[parameter]
 			except KeyError:
-				print(f"\033[1mWARNING: [Observer]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
+				print(f"\033[1mWARNING: [Vision]\033[0m There is no parameter called \033[1m{parameter}\033[0m")
 				return None
