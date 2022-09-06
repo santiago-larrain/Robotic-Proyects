@@ -11,13 +11,13 @@ import numpy as np
 if __name__ == "__main__":
     simulation = False
 
-    if simulation:
-        def hook(type, value, traceback):
-            print(type)
-            print(traceback)
-        sys.__excepthook__ = hook
-        app = QApplication([])
+    def hook(type, value, traceback):
+        print(type)
+        print(traceback)
+    sys.__excepthook__ = hook
+    app = QApplication([])
 
+    if simulation:
         # Display class for simulation
         display = Display(app)
 
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     else:
         # Vision for real deal
-        vision = Vision(nCam= 0)
+        vision = Vision(nCam= 0, app= app)
 
         # Comms
         coms = BTComs()
@@ -98,10 +98,6 @@ if __name__ == "__main__":
         task_manager.restart_signal.connect(
             robot.restart
         )
-    else:
-        task_manager.restart_signal.connect(
-            vision.restart
-        )
 
     # --- End program ---
     task_manager.end_signal.connect(
@@ -129,3 +125,5 @@ if __name__ == "__main__":
         app.exec_()
     else:
         vision.thread.start()
+    # --- Initialize QApp ---
+    app.exec_()

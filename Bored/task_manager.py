@@ -17,14 +17,11 @@ class TaskManager(QObject):
 
     def __init__(self):
         super().__init__()
-
         self.task = 0
-    
+        
     def manage_keyboard(self, key):
-        print(key)
         # Check for start/end program
         if key == pygame.K_ESCAPE:
-            print("ending...")
             self.end_program()
         elif key == pygame.K_RETURN:
             self.restart_program()

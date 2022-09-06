@@ -3,10 +3,11 @@
     "PROGRAM_WINDOW": "Vista foaclizada",
     "MW_X": 0,
     "MW_Y": 0,
-    "PW_X": 640,
+    "PW_X": 960,
     "PW_Y": 0,
     "RANGE": [5, 50, 60],
     "DEFAULT_COLOR": [170, 255, 255],
+    "SLEEP": 0.01,
 
     "LARGO_AUTO": 10,
     "MESSAGE": "{motor1},{motor2};"

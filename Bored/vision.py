@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import json
 import time
-from threading import Thread, Event
+from threading import Thread
 from PyQt5.QtCore import QObject, pyqtSignal
 
 P_ROUTE = "parameters/vision_parameters.json"
@@ -10,10 +10,10 @@ P_ROUTE = "parameters/vision_parameters.json"
 class Vision(QObject):
 
 	keyboard_signal = pyqtSignal(int)
-	keyboard_event = Event()
 	
-	def __init__(self, nCam= 0):
+	def __init__(self, nCam= 0, app= None):
 		super().__init__()
+		self.app = app
 
 		# Inicializar cámara
 		self.cap = cv2.VideoCapture(nCam, cv2.CAP_DSHOW) #
@@ -74,16 +74,14 @@ class Vision(QObject):
 			self.mostrar(f"Distance: {round(self.dist_mts, 2)} cm", 2)
 			
 			## --- Mostrar pantallas y revisar evento de mouse --- ##
-			cv2.imshow(self.p("PROGRAM_WINDOW"), self.frames[2])
-			cv2.imshow(self.p("MAIN_WINDOW"), self.frames[0])
+			cv2.imshow(self.p("PROGRAM_WINDOW"), cv2.resize(self.frames[2], (960, 720)))
+			cv2.imshow(self.p("MAIN_WINDOW"), cv2.resize(self.frames[0], (960, 720)))
 			cv2.setMouseCallback(self.p("MAIN_WINDOW"), self.click_event)
 			
 			## --- Revisar inputs y emitir estado --- ##
-			self.keyboard_event.set()
 			self.keyboard()
-			self.keyboard_event.wait()
 			
-			# time.sleep(max(self.p("SLEEP") - (time.time() - start), 0))
+			time.sleep(max(self.p("SLEEP") - (time.time() - start), 0))
 		
 		self.cap.release()
 		cv2.destroyAllWindows()
@@ -266,18 +264,13 @@ class Vision(QObject):
 		key = cv2.waitKey(1)
 		if key != -1:
 			self.keyboard_signal.emit(key)
-			if key == 27:
-				self.end()
 
 	def restart(self):
 		# Restore initial values for variables
-		self.end()
 
 		self.color = [None]*5 # Colors for car, ball and enemy car
 		self.enemy = False
 		self.center = np.array([320, 240])
-
-		self.active = True  # Parámetro bajo el cual el Thread corre
 
 		# Valores para controlador
 		self.alpha = 0
@@ -298,14 +291,13 @@ class Vision(QObject):
 		# Otras variables
 		self.count = 0		# Contador para ir cambiando los colores a utilizar
 
-		self.thread.start()
-
 	def end(self):
 		self.active = False
 		try:
 			self.thread.join()
 		except RuntimeError:
 			pass
+		self.app.exit()
 
 	# Leer parámetros
 	def p(self, parameter):
