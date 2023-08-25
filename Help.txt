@@ -1,0 +1,17 @@
+# Clone Repository:
+https://github.com/santiago-larrain/Robotic-Proyects.git
+
+# Basic commands:
+git status                              	// Checks if there are any changes
+git add <files>                  	// Add a new file/dir to the branch
+git rm -r <files>			// Remove a file from the branch
+git rm -r --cached <files>		// Remove cached information (file from the GitHub repository)
+git commit -m "message"    	// Commit changes
+git pull                              	// Pulls changes from main branch
+git push                               	// Push changes in current branch
+
+# Branch commands:
+git checkout branch_name	// Change to existing branch
+git switch branch_name		// .
+git checkout -b new_branch	// Change to new branch
+git switch -b branch_name		// .
