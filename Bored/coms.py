@@ -1,6 +1,6 @@
 import json
 import time
-import serial
+#import serial
 from threading import Thread
 from PyQt5.QtCore import QObject, pyqtSignal
 

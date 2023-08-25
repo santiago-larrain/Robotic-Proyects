@@ -47,6 +47,9 @@ class TaskManager(QObject):
                     self.toggle_OnOff_coms_signal.emit()
                 if key == pygame.K_0:
                     self.task_signal.emit("0")
+                if str(key)[0] == "(":
+                    if key[0] == "mouse_pos":
+                        print(key[1])
                 # Automatic drive based on tasks
                 else:
                     print(key)

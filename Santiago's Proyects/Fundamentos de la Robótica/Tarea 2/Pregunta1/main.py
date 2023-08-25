@@ -19,7 +19,7 @@ def exportar(estados):
     writer.writerows(estados)
     file.close()
     # Pedirle al archivo plot_data.py que grafique los datos recolectados
-    graficar_datos(nombre_archivo, field_names)
+    # graficar_datos(nombre_archivo, field_names)
 
 def agregar_estado(data, t, Q, W, A, P_dot, P_ddot):
     # Recibe un estado y lo añade a la lista que más tarde pasará a el archivo csv

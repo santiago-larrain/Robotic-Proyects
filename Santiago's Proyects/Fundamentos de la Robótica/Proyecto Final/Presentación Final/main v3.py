@@ -762,5 +762,5 @@ def p(arg):
 
 if __name__ == '__main__':
 	antena = Coms()
-	camera = Vision(nCam= 1, antena= antena)
+	camera = Vision(nCam= 1)#, antena= antena)
 	camera.thread.start()

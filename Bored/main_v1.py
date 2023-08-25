@@ -9,7 +9,7 @@ from vision import Vision
 import numpy as np
 
 if __name__ == "__main__":
-    simulation = False
+    simulation = True
 
     def hook(type, value, traceback):
         print(type)
@@ -55,6 +55,10 @@ if __name__ == "__main__":
     if simulation:
         # Connect keboard
         display.keyboard_signal.connect(
+            task_manager.manage_keyboard
+        )
+        # Connect mouse
+        display.mouse_signal.connect(
             task_manager.manage_keyboard
         )
         # Set speed via signals (not BT)

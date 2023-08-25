@@ -10,6 +10,7 @@ P_ROUTE = "Simulador/parameters/display_parameters.json"
 class Display(QObject):
 
     keyboard_signal = pyqtSignal(int)
+    mouse_signal = pyqtSignal(tuple)
 
     def __init__(self, app):
         super().__init__()
@@ -61,6 +62,8 @@ class Display(QObject):
                 self.keyboard_signal.emit(pygame.K_ESCAPE)
             elif event.type == pygame.KEYDOWN:
                 self.keyboard_signal.emit(event.key)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.mouse_signal.emit(("mouse_pos", event.pos))
 
 
     def show_text(self, text, ID, left):

@@ -1,0 +1,46 @@
+TITLE
+<body>
+    <div id="__next" data-reactroot>
+        <main role="main" class="ipc-page-wrapper ipc-page-wrapper--base">
+            <div class="ipc-page-content-container ipc-page-content-container--full sc-5af2ce7a-0 hOQfMb" role="presentation">
+                <section class="ipc-page-background ipc-page-background--base sc-304f99f6-0 eaRXHu">
+                    <section data-testid="atf-wrapper-bg" class="ipc-page-background ipc-page-background--baseAlt sc-ae13f4cd-0 fNnmdy atf-background-theme-dark">
+                        <div class="ipc-page-content-container ipc-page-content-container--center" role="presentation">
+                            <section class="ipc-page-background ipc-page-background--baseAlt sc-e226b0e3-0 gBJuDI">
+                                <section class="ipc-page-section ipc-page-section--baseAlt ipc-page-section--tp-none ipc-page-section--bp-xs sc-e226b0e3-2 fxgTov">
+                                    <section class="ipc-page-section ipc-page-section--baseAlt ipc-page-section--tp-none ipc-page-section--bp-xs sc-e226b0e3-2 fxgTov">
+                                        <div class="sc-e226b0e3-3 jJsEuz">
+                                            <div class="sc-acac9414-0 jFcAtv">
+                                                <h1 textlength="8" data-testid="hero__pageTitle" class="sc-afe43def-0 hnYaOZ">
+                                                    <span class="sc-afe43def-1 fDTGTb">
+POINTS
+<body>
+    <div id="__next" data-reactroot>
+        <main role="main" class="ipc-page-wrapper ipc-page-wrapper--base">
+            <div class="ipc-page-content-container ipc-page-content-container--full sc-5af2ce7a-0 hOQfMb" role="presentation">
+                <section class="ipc-page-background ipc-page-background--base sc-304f99f6-0 eaRXHu">
+                    <section data-testid="atf-wrapper-bg" class="ipc-page-background ipc-page-background--baseAlt sc-ae13f4cd-0 fNnmdy atf-background-theme-dark">
+                        <div class="ipc-page-content-container ipc-page-content-container--center" role="presentation">
+                            <section class="ipc-page-background ipc-page-background--baseAlt sc-e226b0e3-0 gBJuDI">
+                                <section class="ipc-page-section ipc-page-section--baseAlt ipc-page-section--tp-none ipc-page-section--bp-xs sc-e226b0e3-2 fxgTov">
+                                    <section class="ipc-page-section ipc-page-section--baseAlt ipc-page-section--tp-none ipc-page-section--bp-xs sc-e226b0e3-2 fxgTov">
+                                        <div class="sc-e226b0e3-3 jJsEuz">
+                                            <div class="sc-3a4309f8-0 fjtZsE sc-acac9414-1 SZwsj">
+                                                <div class="sc-3a4309f8-1 kKSYln">
+                                                    <div data-testid="hero-rating-bar__aggregate-rating" class="sc-acdbf0f3-0 glkvwr rating-bar__base-button">
+                                                        <a class="ipc-btn ipc-btn--single-padding ipc-btn--center-align-content ipc-btn--default-height ipc-btn--core-baseAlt ipc-btn--theme-baseAlt ipc-btn--on-textPrimary ipc-text-button sc-acdbf0f3-2 tBSnU" role="button" tabindex="0" aria-label="Ver puntuaciones de usuarios" aria-disabled="false" href="/title/tt16427718/ratings/?ref_=tt_ov_rt">
+                                                            <span class="ipc-btn__text">
+                                                                <div class="sc-acdbf0f3-3 kpRihV">
+                                                                    <div class="sc-bde20123-0 gtEgaf">
+                                                                        <div data-testid="hero-rating-bar__aggregate-rating__score" class="sc-bde20123-2 gYgHoj">
+                                                                            <span class="sc-bde20123-1 iZlgcd">5,6</span>
+INFO
+<body>
+    <div id="__next" data-reactroot>
+        <main role="main" class="ipc-page-wrapper ipc-page-wrapper--base">
+            <div class="ipc-page-content-container ipc-page-content-container--full sc-5af2ce7a-0 hOQfMb" role="presentation">
+                <section class="ipc-page-background ipc-page-background--base sc-304f99f6-0 eaRXHu">
+                    <div class="ipc-page-content-container ipc-page-content-container--center" role="presentation">
+                        <section class="ipc-page-background ipc-page-background--base sc-c7c3a435-0 khtSoA">
+                            <div class="ipc-page-grid ipc-page-grid--bias-left">
+                                <div class="sc-c7c3a435-1 NixYx ipc-page-grid__item ipc-page-grid__item--span-2">
