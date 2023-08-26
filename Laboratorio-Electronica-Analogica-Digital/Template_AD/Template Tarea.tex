@@ -1,0 +1,128 @@
+%  Máquinas Eléctricas 2014-I.
+% Paquetes varios:
+\documentclass[letterpaper, 12pt]{article}
+\usepackage[spanish, es-tabla]{babel} %%Paquete español para mac
+\usepackage[utf8]{inputenc} %% Para unicode
+\usepackage{graphicx} %% Para incluir figuras
+\usepackage{ifpdf}
+\usepackage{blindtext}
+\DeclareGraphicsExtensions{.pdf}
+\usepackage{fullpage}
+\setcounter{totalnumber}{5}
+\renewcommand{\textfraction}{0.1}
+\usepackage[cmex10]{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\decimalpoint
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\hypersetup{colorlinks=false,bookmarksopen=true,linkbordercolor={1 1 1}}
+\newcommand{\rfigura}[1]{Fig.\ref{#1}} %% redefine las figuras
+\newcommand{\rtabla}[1]{Tabla \ref{#1}} %% redefine las tablas
+\usepackage{enumerate} %% Paquete ara generar listas enumeradas
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{enumerate}
+\usepackage{titlesec}
+\usepackage{vmargin}
+\usepackage[export]{adjustbox}
+\usepackage{imakeidx}
+\usepackage{biblatex} %Imports biblatex package
+\addbibresource{sample.bib} %Import the bibliography file
+
+
+\usepackage{xcolor}
+\usepackage{listings}%Para incluir archivos de codigo
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstdefinestyle{python}
+{
+    style=shared,
+    language={Python},
+    %alsolanguage={[Sharp]C},
+    basicstyle=\small\tt,
+    keywordstyle=\color{blue},
+    commentstyle=\color[rgb]{0.13,0.54,0.13},
+    backgroundcolor=\color{cyan!10},
+    morekeywords={
+        Console,
+        WriteLine,
+        int,
+    },
+}
+\lstset{style=mystyle}
+\usepackage{marvosym}
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%   ENCABEZADO  %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace*{-1cm}
+\includegraphics[width=2cm]{logo.pdf}
+\vspace*{-2cm}
+
+\hspace*{2cm}
+ \begin{tabular}{l}
+  {\ Pontificia Universidad Católica de Chile}\\
+  {\ Escuela de Ingeniería}\\
+  {\ Departamento de Ingeniería Eléctrica}\\
+  {\ IEE2473 – Laboratorio de electrónica analógica y digital}\
+ \end{tabular}
+ \hfill 
+\vspace*{1mm}
+\begin{center}
+{\Large\bf Experiencia X}\\
+\vspace*{1mm}
+{\bf Grupo X}\\
+{\bf Nombre 1 - Nombre 2}\\
+\vspace*{1mm}
+\end{center}
+\hrule\vspace*{2pt}\hrule
+% ***********************************************
+% ***********************************************
+\input{Desarrollo_Exp}
+
+\newpage
+\printbibliography[
+heading=bibintoc,
+title={Bibliografía}
+]
+
+\newpage
+\include{Anexos}
+
+% ***********************************************
+% ***********************************************
+\end{document}
+
+
+
