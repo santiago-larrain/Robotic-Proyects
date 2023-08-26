@@ -17,3 +17,4 @@ git checkout -b new_branch	// Change to new branch
 git switch -b branch_name	// .
 git push origin --delete branch_name	// Remove branch from cloud (do it inside the branch)
 git branch -D branch_name			// Remove local branch (do it in main)
+git push --set-upstream origin branch_name	// First push
