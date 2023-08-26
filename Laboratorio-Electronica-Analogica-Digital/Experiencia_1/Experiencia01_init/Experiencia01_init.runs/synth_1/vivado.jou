@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Vivado v2020.1 (64-bit)
+# SW Build 2902540 on Wed May 27 19:54:49 MDT 2020
+# IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
+# Start of session at: Fri Aug 25 21:06:21 2023
+# Process ID: 32052
+# Current directory: C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/synth_1
+# Command line: vivado.exe -log top.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source top.tcl
+# Log file: C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/synth_1/top.vds
+# Journal file: C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/synth_1\vivado.jou
+#-----------------------------------------------------------
+source top.tcl -notrace
