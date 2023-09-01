@@ -85,7 +85,6 @@ set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
 read_verilog -library xil_defaultlib {
-  C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/Boton.v
   C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/clock_divider.v
   C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/display.v
   C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/uart_receptor.v
