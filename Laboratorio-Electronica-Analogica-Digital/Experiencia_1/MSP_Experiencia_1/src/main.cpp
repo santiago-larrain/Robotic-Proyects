@@ -16,9 +16,9 @@ int uno2 = 0, uno2_prev = 0;
 int send(int current, int previous, int pos){
 	if (current != previous){
 		// Solo enviar cambios si hubieron cambios
-		uint8_t bcdValue = (pos << 4) | current;
-		Serial1.write(bcdValue);
-		Serial1.flush();
+		uint8_t bcdValue = pos | current;
+		Serial.println(bcdValue);
+		Serial.flush();
 	}
 	return current;
 }
@@ -39,25 +39,25 @@ void loop() {
 
 	// Separar digitos
 	// Voltaje de entrada
-	int uno1 = ((analog_v_in_int % 1000) % 100) % 10;
-	int diez1 = ((analog_v_in_int % 1000) % 100) / 10;
-	int cien1 = (analog_v_in_int % 1000) / 100;
-	int mil1 = analog_v_in_int / 1000;
+	uno1  = ((analog_v_in_int % 1000) % 100) % 10;
+	diez1 = ((analog_v_in_int % 1000) % 100) / 10;
+	cien1 = (analog_v_in_int % 1000) / 100;
+	mil1  = analog_v_in_int / 1000;
 	// Voltaje real
-	int uno2 = ((analog_v_real_int % 1000) % 100) % 10;
-	int diez2 = ((analog_v_real_int % 1000) % 100) / 10;
-	int cien2 = (analog_v_real_int % 1000) / 100;
-	int mil2 = analog_v_real_int / 1000;
+	uno2  = ((analog_v_real_int % 1000) % 100) % 10;
+	diez2 = ((analog_v_real_int % 1000) % 100) / 10;
+	cien2 = (analog_v_real_int % 1000) / 100;
+	mil2  = analog_v_real_int / 1000;
 	
 	// Enviar valores
-	int uno1_prev = send(uno1, uno1_prev, 0x0);
-	int diez1_prev = send(diez1, diez1_prev, 0x1);
-	int cien1_prev = send(cien1, cien1_prev, 0x2);
-	int mil1_prev = send(mil1, mil1_prev, 0x3);
-	int uno1_prev = send(uno1, uno1_prev, 0x4);
-	int diez1_prev = send(diez1, diez1_prev, 0x5);
-	int cien1_prev = send(cien1, cien1_prev, 0x6);
-	int mil1_prev = send(mil1, mil1_prev, 0x7);
+	uno1_prev  = send(uno1, uno1_prev, 0x00);
+	diez1_prev = send(diez1, diez1_prev, 0x10);
+	cien1_prev = send(cien1, cien1_prev, 0x20);
+	mil1_prev  = send(mil1, mil1_prev, 0x30);
+	uno2_prev  = send(uno2, uno2_prev, 0x40);
+	diez2_prev = send(diez2, diez2_prev, 0x50);
+	cien2_prev = send(cien2, cien2_prev, 0x60);
+	mil2_prev  = send(mil2, mil2_prev, 0x70);
 
 // 	// Prototipo de codigo P2
 // 	if (digital_v_in <= 1024){
