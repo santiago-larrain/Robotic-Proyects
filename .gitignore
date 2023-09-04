@@ -129,6 +129,11 @@ dmypy.json
 .pyre/
 
 # Vivado Runs
-Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/
 Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.cache/
+Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.hbs/
+Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.hw/
+Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.ip_user_files/
+Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/
 Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.sim/
+# Si subir archivo .bit
+!Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/impl_1/top.bit
