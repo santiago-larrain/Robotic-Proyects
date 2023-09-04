@@ -1,0 +1,7 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  \
+"uart_tb_time_impl.v" \
+"../../../../../Experiencia01_init.srcs/sim_1/new/uart_tb.v" \
+
+# Do not sort compile order
+nosort

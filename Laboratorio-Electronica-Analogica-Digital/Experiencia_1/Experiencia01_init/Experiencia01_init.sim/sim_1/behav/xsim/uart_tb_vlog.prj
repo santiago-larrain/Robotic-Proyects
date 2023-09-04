@@ -1,0 +1,13 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  \
+"../../../../Experiencia01_init.srcs/sources_1/new/clock_divider.v" \
+"../../../../Experiencia01_init.srcs/sources_1/new/top.v" \
+"../../../../Experiencia01_init.srcs/sources_1/new/uart_receptor.v" \
+"../../../../Experiencia01_init.srcs/sources_1/new/voltage_memory.v" \
+"../../../../Experiencia01_init.srcs/sim_1/new/uart_tb.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

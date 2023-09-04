@@ -1,0 +1,10 @@
+0.7
+2020.1
+May 27 2020
+20:09:33
+C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.sim/sim_1/behav/xsim/glbl.v,1590624368,verilog,,,,glbl,,,,,,,,
+C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sim_1/new/uart_tb.v,1693609686,verilog,,,,uart_tb,,,,,,,,
+C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/clock_divider.v,1693659457,verilog,,C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/top.v,,one_shot_clock_divider,,,,,,,,
+C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/top.v,1693658633,verilog,,C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/uart_receptor.v,,top,,,,,,,,
+C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/uart_receptor.v,1693660781,verilog,,C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/voltage_memory.v,,uart_receptor;uart_receptor_2,,,,,,,,
+C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sources_1/new/voltage_memory.v,1693608008,verilog,,C:/Users/Santiago/Documentos/GitHub/Robotic-Proyects/Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.srcs/sim_1/new/uart_tb.v,,voltage_memory,,,,,,,,
