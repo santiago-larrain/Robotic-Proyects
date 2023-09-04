@@ -20,49 +20,49 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-//module clock_divider(
-//    input clk, rst,
-//    input [11:0] period,
-//    output reg sub_clk = 0
-//    );
+module clock_divider(
+    input clk, rst,
+    input [15:0] period,
+    output reg sub_clk = 0
+    );
     
-//    reg [11:0] counter = 0;
+    reg [16:0] counter = 0;
     
-//    always @(posedge clk) begin
-//        if (rst) begin
-//            counter <= 12'd0;
-//            sub_clk <= 1'b0;
-//        end
-//        else if (counter < period/2-1) begin
-//            counter <= counter + 1;
-//        end
-//        else begin
-//            sub_clk <= ~sub_clk;
-//            counter <= 0;
-//        end
-//    end
-//endmodule
+    always @(posedge clk) begin
+        if (rst) begin
+            counter <= 17'd0;
+            sub_clk = 1'b0;
+        end
+        else if (counter < period/2-1) begin
+            counter <= counter + 1;
+        end
+        else begin
+            sub_clk = ~sub_clk;
+            counter <= 0;
+        end
+    end
+endmodule
 
-//module one_shot_clock_divider(
-//    input clk, rst,
-//    input [15:0] period,
-//    output reg sub_clk
-//    );
+module one_shot_clock_divider(
+    input clk, rst,
+    input [15:0] period,
+    output reg sub_clk = 0
+    );
     
-//    reg [11:0] counter = 0;
+    reg [16:0] counter = 0;
     
-//    always @(negedge clk) begin
-//        if (rst) begin
-//            counter <= 0;
-//            sub_clk <= 0;
-//        end
-//        else if (counter < period-1) begin
-//            counter <= counter + 1;
-//            sub_clk <= 0;
-//        end
-//        else begin
-//            sub_clk <= 1;
-//            counter <= 0;
-//        end
-//    end
-//endmodule
+    always @(posedge clk) begin
+        if (rst) begin
+            counter <= 0;
+            sub_clk = 0;
+        end
+        else if (counter < period-1) begin
+            counter <= counter + 1;
+            sub_clk = 0;
+        end
+        else begin
+            sub_clk = 1;
+            counter <= 0;
+        end
+    end
+endmodule

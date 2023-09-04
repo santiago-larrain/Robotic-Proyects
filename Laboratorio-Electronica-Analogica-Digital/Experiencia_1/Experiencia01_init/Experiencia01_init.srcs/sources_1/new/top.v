@@ -31,19 +31,21 @@ module top(
     //output [15:0] voltage 
     );
     
-    parameter [15:0] baudrate = 16'd4800; // f = 100 MHz
+    parameter [15:0] uart_period = 16'd651; // f = 100 MHz clock -> period = f/baud_rate * 1/16
     
+    wire baud_en;
     wire rx_rdy;
     wire [7:0] rx_data;
     wire [15:0] voltage;
     wire [6:0] dis1, dis2, dis3, dis4;
     
     // Receptor
-    uart_rx uart_web(clk, RsRx, rx_rdy, rx_data);
-    voltage_memory v_mem(clk, sw, rst, rx_rdy, rx_data[7:4], rx_data[3:0], voltage);
+    one_shot_clock_divider os_cd(clk, rst, uart_period, baud_en);
+    uart_receptor uart_rx(clk, rst, baud_en, RsRx, rx_rdy, rx_data);
+    voltage_memory v_mem(clk, sw, rst, rx_rdy, rx_data, voltage);
     
     // Display
     bcd7seg bcd_7seg(voltage, dis1, dis2, dis3, dis4);
-    SevenSegController(clk, rst, dis1, dis2, dis3, dis4, sseg_ca, sseg_an, sseg_dp);
+    SevenSegController(clk, 1'b0, dis1, dis2, dis3, dis4, sseg_ca, sseg_an, sseg_dp);
     
 endmodule
