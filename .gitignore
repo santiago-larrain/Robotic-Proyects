@@ -134,5 +134,9 @@ Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Exper
 Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.hw/
 Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.ip_user_files/
 Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.sim/
+
+# No borrar archivo .bit
 Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/*
+!Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/impl_1
+Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/impl_1/*
 !Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/impl_1/top.bit
