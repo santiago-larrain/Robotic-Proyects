@@ -25,9 +25,8 @@ module voltage_memory(
     input sw,
     input rst,
     input rx_rdy,
-    input [3:0] rx_pos,
-    input [3:0] rx_data,
-    output reg [15:0] voltage
+    input [7:0] rx_data,
+    output [15:0] voltage
     );
     
     reg [15:0] V1;
@@ -36,30 +35,25 @@ module voltage_memory(
     // Save Values
     always @(posedge clk) begin
         if (rst) begin
-            V1 <= 16'd0;
-            V2 <= 16'd0;
+            V1 = 0;
+            V2 = 0;
         end
         else if (rx_rdy)
-            case(rx_pos)
-                4'b0000 : V1[3:0]   <= rx_data;  //uno v1
-                4'b0001 : V1[7:4]   <= rx_data;  //diez v1
-                4'b0010 : V1[11:8]  <= rx_data;  //cien v1
-                4'b0011 : V1[15:12] <= rx_data;  //mil v1
-                4'b0100 : V2[3:0]   <= rx_data;  //uno v2
-                4'b0101 : V2[7:4]   <= rx_data;  //diez v2
-                4'b0110 : V2[11:8]  <= rx_data;  //dien v2
-                4'b0111 : V2[15:12] <= rx_data;  //mil v2
+            case(rx_data[7:4])
+                4'b0000 : V1[3:0] = rx_data[3:0];    //uno v1
+                4'b0001 : V1[7:4] = rx_data[3:0];    //diez v1
+                4'b0010 : V1[11:8] = rx_data[3:0];   //cien v1
+                4'b0011 : V1[15:12] = rx_data[3:0];  //mil v1
+                4'b0100 : V2[3:0] = rx_data[3:0];    //uno v2
+                4'b0101 : V2[7:4] = rx_data[3:0];    //diez v2
+                4'b0110 : V2[11:8] = rx_data[3:0];   //dien v2
+                4'b0111 : V2[15:12] = rx_data[3:0];  //mil v2
                 default : begin
-                              V1 <= 16'd0;
-                              V2 <= 16'd0;
+                          V1 = 16'b1001100001110101;
+                          V2 = 16'b1001100001110101;
                           end
-            endcase
-            
-            // Asignar voltaje según valor de switch
-            case(sw)
-                1'b0 : voltage = V1;
-                1'b1 : voltage = V2;
             endcase
     end
     
+    assign voltage = sw ? V2 : V1;
 endmodule

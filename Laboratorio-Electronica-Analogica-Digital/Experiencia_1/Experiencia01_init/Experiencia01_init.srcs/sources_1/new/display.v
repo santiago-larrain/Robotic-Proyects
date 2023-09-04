@@ -25,17 +25,17 @@ module bcd7seg_base(num, dis);
     
     always @(num)
         case(num)
-            4'b0000: dis <= 7'b1000000;   //0
-            4'b0001: dis <= 7'b1111001;   //1
-            4'b0010: dis <= 7'b0100100;   //2
-            4'b0011: dis <= 7'b0110000;   //3
-            4'b0100: dis <= 7'b0011001;   //4
-            4'b0101: dis <= 7'b0010010;   //5
-            4'b0110: dis <= 7'b0000010;   //6
-            4'b0111: dis <= 7'b1111000;   //7
-            4'b1000: dis <= 7'b0000000;   //8
-            4'b1001: dis <= 7'b0010000;   //9
-            default: dis <= 7'b1111111;   //Off
+            4'b0000: dis = 7'b1000000;   //0
+            4'b0001: dis = 7'b1111001;   //1
+            4'b0010: dis = 7'b0100100;   //2
+            4'b0011: dis = 7'b0110000;   //3
+            4'b0100: dis = 7'b0011001;   //4
+            4'b0101: dis = 7'b0010010;   //5
+            4'b0110: dis = 7'b0000010;   //6
+            4'b0111: dis = 7'b1111000;   //7
+            4'b1000: dis = 7'b0000000;   //8
+            4'b1001: dis = 7'b0010000;   //9
+            default: dis = 7'b1111111;   //Off
         endcase
 endmodule
 
@@ -76,34 +76,29 @@ module SevenSegController(clk, dp_in, dis_a, dis_b, dis_c, dis_d, seg, an, dp);
     always @(*) begin
         case(display)
             2'b00: begin
-                an <= 4'b0111;
-                // Este primer display solo sirve para mostrar el número 1 de los 10V, por lo que conviene tenerlo
-                // apagado en vez de mostrando un 0 a fin de que cuando llegue el 1, este se vea bien.
-                if (dis_a == 7'b1000000)
-                    seg <= 7'b1111111;
-                else
-                    seg <= dis_a;
-                dp <= 1'b1;
+                an = 4'b0111;
+                seg = dis_a;
+                dp = 1'b1;
             end
             2'b01: begin
-                an <= 4'b1011;
-                seg <= dis_b;
-                dp <= dp_in;
+                an = 4'b1011;
+                seg = dis_b;
+                dp = dp_in;
             end
             2'b10: begin
-                an <= 4'b1101;
-                seg <= dis_c;
-                dp <= 1'b1;
+                an = 4'b1101;
+                seg = dis_c;
+                dp = 1'b1;
             end
             2'b11: begin
-                an <= 4'b1110;
-                seg <= dis_d;
-                dp <= 1'b1;
+                an = 4'b1110;
+                seg = dis_d;
+                dp = 1'b1;
             end
             default: begin
-                an <= 4'b1111;
-                seg <= 7'b111_1111;
-                dp <= 1'b1;
+                an = 4'b1111;
+                seg = 7'b111_1111;
+                dp = 1'b1;
             end
         endcase
     end
