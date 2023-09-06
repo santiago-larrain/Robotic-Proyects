@@ -129,14 +129,14 @@ dmypy.json
 .pyre/
 
 # Vivado Files
-Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.Xil/
-Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.cache/
-Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.hbs/
-Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.hw/
-Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.ip_user_files/
-Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.sim/
-Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/vivado.jou
-Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/vivado.log
+
+# No borrar proyecto
+Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/*
+!Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.xpr
+
+# No borrar modulos
+Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/*
+!Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.src/
 
 # No borrar archivo .bit
 Laboratorio-Electronica-Analogica-Digital/Experiencia_1/Experiencia01_init/Experiencia01_init.runs/*
