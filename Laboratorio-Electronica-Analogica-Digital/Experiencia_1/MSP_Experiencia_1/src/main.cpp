@@ -92,6 +92,5 @@ void loop() {
   else {
     send_all = false;
   }
-  delay(100);
 
 }
