@@ -24,4 +24,5 @@ while i < n
 end
 
 plot(listaFinalX, listaFinalY);
-
+writematrix(listaY, "ValoresGenerador.txt");
+type ValoresGenerador.txt
